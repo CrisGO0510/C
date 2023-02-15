@@ -33,7 +33,7 @@ int main(){
 	// gets(a); esta funcion se usa si necesitamos una cadena de caracteres con space
 	// debido a que con scanf("%s", a); solo tomamos caracteres hasta que ve un space
 	
-	printf("Su nombre es: %s",a);
+	printf("Su nombre es: %s",&a);
 	
 	return 0;
 		}
