@@ -16,7 +16,16 @@ int main(){
     char palabra[15] = "";
     strcpy(palabra, setPalabra());
 
-    printf("%s", palabra);
+    printf("%s\n", palabra);
+
+    char palabraOculta[15] = "";
+
+    for (int i = 0; i < strlen(palabra); i++)
+    {
+        palabraOculta[i] = "-";
+    }
+    
+    printf("%s", palabraOculta);
  
     return 0;
 }
