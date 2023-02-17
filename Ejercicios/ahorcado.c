@@ -14,6 +14,7 @@
 char *setPalabra();
 int randomNum();
 void ingresaLetra(char[], char[], int *);
+void impAhorcado(int intentos, char palabraOculta[]);
 
 int main()
 {
@@ -30,9 +31,6 @@ int main()
     char palabra[15] = "";
     // * Copiamos en la variable una "palabra" generada en la función setPalabra()
     strcpy(palabra, setPalabra());
-
-    // TODO: QUITAR LUEGO, TESTING*
-    printf("%s\n", palabra);
 
     /*
      * Definimos una variable char array, la que contendrá la cantidad de espacios que tiene la variable
@@ -65,13 +63,13 @@ int main()
 
 void ingresaLetra(char palabra[], char palabraOculta[], int *inte)
 {
-    printf("%s\n", palabraOculta);
+    impAhorcado(*inte, palabraOculta);
 
     //* Variable que contendrá la letra ingresada por el usuario
     char letra = "";
 
     //* Le pedimos al usuario que ingrese un caracter
-    printf("Ingrese una letra: ");
+    printf("\nIngrese una letra: ");
     scanf("%c", &letra);
     /*
      * getchar() es una función para consumir el "enter" que se envia automaticamente
@@ -108,8 +106,8 @@ void ingresaLetra(char palabra[], char palabraOculta[], int *inte)
         if (strcmp(palabra, palabraOculta) == 0)
         {
             /* Fin del programa */
+            impAhorcado(*inte, palabraOculta);
             printf("GANASTE!!!\n");
-            printf("%s\n", palabraOculta);
 
         } //! En caso de no haber ganado aún
         else
@@ -122,17 +120,18 @@ void ingresaLetra(char palabra[], char palabraOculta[], int *inte)
     else
     {
         //* Condicional para saber si se acabaron los intentos
-        if (*inte > 1)
+        if (*inte > 2)
         {
             //* Restamos 1 intento y volvemos a ejecutar la función
             *inte -= 1;
-            printf("Te quedan %i intentos\n", *inte);
             ingresaLetra(palabra, palabraOculta, inte);
         } //! En caso de no tener mas intentos
         else
         {
             //* En caso de que se acaben los intentos acabar el programa
-            printf("Te has quedado sin intentos");
+            impAhorcado(1, palabraOculta);
+            printf("\nTe has quedado sin intentos\n");
+
         } // Fin del if
 
     } // Fin del if
@@ -172,7 +171,8 @@ void impAhorcado(int intentos, char palabraOculta[])
         printf("█████████        \n");
         printf("█       |         \n");
         printf("█       |         \n");
-        printf("█       O        \n");
+        printf("█       O        ");
+        printf("%s\n", palabraOculta);
         printf("█       |        \n");
         printf("█                \n");
         printf("█                \n");
@@ -236,6 +236,7 @@ void impAhorcado(int intentos, char palabraOculta[])
         break;
 
     default:
+        printf("ERROR CON LOS INTENTOS");
         break;
     }
 }
