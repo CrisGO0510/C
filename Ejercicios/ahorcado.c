@@ -25,7 +25,7 @@ int main()
     */
 
     //* Variable que contendrá el número de intentos que le quedan al usuario
-    int intentos = 5;
+    int intentos = 8;
 
     char palabra[15] = "";
     // * Copiamos en la variable una "palabra" generada en la función setPalabra()
@@ -57,7 +57,6 @@ int main()
      */
 
     ingresaLetra(palabra, &palabraOculta, &intentos);
-
 
     return 0;
 }
@@ -110,14 +109,16 @@ void ingresaLetra(char palabra[], char palabraOculta[], int *inte)
         {
             /* Fin del programa */
             printf("GANASTE!!!\n");
-        }//! En caso de no haber ganado aún
+            printf("%s\n", palabraOculta);
+
+        } //! En caso de no haber ganado aún
         else
         {
             printf("Acertaste\n");
             //* Volvemos a llamar a la función ingresaLetra
             ingresaLetra(palabra, palabraOculta, inte);
         } // Fin del if
-    } //! En caso de no acertar la palabra
+    }     //! En caso de no acertar la palabra
     else
     {
         //* Condicional para saber si se acabaron los intentos
@@ -126,7 +127,7 @@ void ingresaLetra(char palabra[], char palabraOculta[], int *inte)
             //* Restamos 1 intento y volvemos a ejecutar la función
             *inte -= 1;
             printf("Te quedan %i intentos\n", *inte);
-            ingresaLetra(palabra, &palabraOculta, inte);
+            ingresaLetra(palabra, palabraOculta, inte);
         } //! En caso de no tener mas intentos
         else
         {
@@ -135,6 +136,108 @@ void ingresaLetra(char palabra[], char palabraOculta[], int *inte)
         } // Fin del if
 
     } // Fin del if
+}
+
+// ? Función para imprimir el ahorcado
+
+void impAhorcado(int intentos, char palabraOculta[])
+{
+    switch (intentos)
+    {
+
+    case 8:
+        system("clear");
+        printf("█████████        \n");
+        printf("█                 \n");
+        printf("█                 \n");
+        printf("█                ");
+        printf("%s\n", palabraOculta);
+        printf("█                \n");
+        printf("█                \n");
+        printf("█                \n");
+        break;
+    case 7:
+        system("clear");
+        printf("█████████        \n");
+        printf("█       |         \n");
+        printf("█       |         \n");
+        printf("█       O        ");
+        printf("%s\n", palabraOculta);
+        printf("█                \n");
+        printf("█                \n");
+        printf("█                \n");
+        break;
+    case 6:
+        system("clear");
+        printf("█████████        \n");
+        printf("█       |         \n");
+        printf("█       |         \n");
+        printf("█       O        \n");
+        printf("█       |        \n");
+        printf("█                \n");
+        printf("█                \n");
+        break;
+    case 5:
+        system("clear");
+        printf("█████████        \n");
+        printf("█       |         \n");
+        printf("█       |         \n");
+        printf("█       O        ");
+        printf("%s\n", palabraOculta);
+        printf("█       |\\       \n");
+        printf("█                \n");
+        printf("█                \n");
+        break;
+    case 4:
+        system("clear");
+        printf("█████████        \n");
+        printf("█       |         \n");
+        printf("█       |         \n");
+        printf("█       O        ");
+        printf("%s\n", palabraOculta);
+        printf("█      /|\\       \n");
+        printf("█                \n");
+        printf("█                \n");
+        break;
+    case 3:
+        system("clear");
+        printf("█████████        \n");
+        printf("█       |         \n");
+        printf("█       |         \n");
+        printf("█       O        ");
+        printf("%s\n", palabraOculta);
+        printf("█      /|\\       \n");
+        printf("█       |        \n");
+        printf("█                \n");
+        break;
+
+    case 2:
+        system("clear");
+        printf("█████████        \n");
+        printf("█       |         \n");
+        printf("█       |         \n");
+        printf("█       O        ");
+        printf("%s\n", palabraOculta);
+        printf("█      /|\\       \n");
+        printf("█       |        \n");
+        printf("█      /         \n");
+        break;
+
+    case 1:
+        system("clear");
+        printf("█████████        \n");
+        printf("█       |         \n");
+        printf("█       |         \n");
+        printf("█       O        ");
+        printf("%s\n", palabraOculta);
+        printf("█      /|\\       \n");
+        printf("█       |        \n");
+        printf("█      / \\       \n");
+        break;
+
+    default:
+        break;
+    }
 }
 
 // ? Función que retorna un string dependiendo el numero ingresado
@@ -173,9 +276,11 @@ char *setPalabra()
      * Practica de programación.
      */
     default:
-        *setPalabra();
+        setPalabra();
         break;
     }
+
+    return 0;
 }
 
 // ? Función que retorna un numero seudoaleatorio
