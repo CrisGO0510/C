@@ -12,6 +12,7 @@
 * Función es señalar el valor que hay en la dirección X.
 */
 
+void cambio(int *, int *);
 
 // * Ejemplo practico:
 
