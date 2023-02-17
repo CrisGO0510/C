@@ -2,9 +2,12 @@
 #include <string.h>
 
 int main() {
-   char cadena = "H";
-   char *puntero;
+   
+   if (b)
+   {
+      /* code */
+   }
+   
 
-   printf("%i", sizeof(cadena));
    return 0;
 }

@@ -107,7 +107,7 @@ void ingresaLetra(char palabra[], char palabraOculta[], int *inte)
         {
             /* Fin del programa */
             impAhorcado(*inte, palabraOculta);
-            printf("GANASTE!!!\n");
+            printf("\nGANASTE!!!\n");
 
         } //! En caso de no haber ganado aún
         else
