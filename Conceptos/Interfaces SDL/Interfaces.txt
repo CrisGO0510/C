@@ -1,0 +1,6 @@
+En esta sección aprenderemos a usar interfaces graficas, en este caso usaremos la libreria <SDL2/SDL.h> esto es debido a que nos encontramos en un sistema operativo linux y la libreria <graphics.h> no es compatible. Podriamos usar otra como GTK, Xlib, Pero por facilidad y gracias a que es multiplataforma usaremos <SDL2/SDL.h>
+
+Usaremos la versión de sldl2 = sdl2-2.26.3-1 
+
+TODO: Importante saber que al copilarlo tenemos que agregar el argumento -lSDL2, en caso de no hacerlo
+TODO: mandará un error como el siguiente: undefined reference to `SDL_XXXX'

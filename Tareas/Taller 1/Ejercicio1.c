@@ -1,19 +1,20 @@
 /*
-* Fecha de publicación: 15 de febrero del 2023
-* Hora: 9:24 am
-* Versión de su código: 1.0
-* Autor: Ing(c) Cristhian Giraldo Orozco
-* Nombre del lenguaje: C
-* Versión del copilador: gcc (GCC) 12.2.1 20230111
-* Presentado a: PHD Ricardo Moreno Laverde
-* Universidad : Universidad Tecnologica de Pereira
-* Programa: Ingenieria en sistemas y computación
-* Descripción: Programa para pasar de grados centigrados a grados farenheit
-*/
+ * Fecha de publicación: 17 de febrero del 2023
+ * Hora: 19:31
+ * Versión de su código: 1.0
+ * Autor: Ing(c) Cristhian Giraldo Orozco
+ * Nombre del lenguaje: C
+ * Versión del copilador: gcc (GCC) 12.2.1 20230111
+ * Presentado a: PHP Ricardo Moreno Laverde
+ * Universidad : Universidad Tecnologica de Pereira
+ * Programa: Ingenieria en sistemas y computación
+ * Descripción: Programa para pasar de grados centigrados a grados farenheit
+ */
 
 #include <stdio.h>
 
-int main(){
+int main()
+{
 
     // Definimos variables
 
@@ -39,11 +40,10 @@ int main(){
     Acá redefinimos la variable faren con la formula para pasar de centigrados a
     farenheit y obtenemos el valor del los farenheit
     */
-    faren = cen * 9/5 + 32;
+    faren = cen * 9 / 5 + 32;
 
     /*
     Le mostramos el valor de los grados farenheit
     */
-    printf("%.1f°C son %.1f grados Farenheit",cen,faren);
-
+    printf("%.1f°C son %.1f grados Farenheit", cen, faren);
 }
