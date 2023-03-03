@@ -1,6 +1,6 @@
 #include <SDL2/SDL.h>
 
-int main(int argc, char* argv[]) {
+int main() {
     SDL_Window* window = NULL;
     SDL_Surface* screenSurface = NULL;
 
