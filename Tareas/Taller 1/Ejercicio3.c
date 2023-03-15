@@ -5,7 +5,7 @@
  * Autor: Ing(c) Cristhian Giraldo Orozco
  * Nombre del lenguaje: C
  * Versión del copilador: gcc (GCC) 12.2.1 20230111
- * Presentado a: PHP Ricardo Moreno Laverde
+ * Presentado a: PHD Ricardo Moreno Laverde
  * Universidad : Universidad Tecnologica de Pereira
  * Programa: Ingenieria en sistemas y computación
  * Descripción: Programa que nos dará el perimetro de un rectangulo 
