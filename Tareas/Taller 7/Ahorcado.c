@@ -1,6 +1,14 @@
 /*
- * Haremos un ahorcado en el cual usaremos vectores de string y un crearemos una
- * función que retorne una palabra random
+ * Fecha de publicación: 16 de Marzo del 2023
+ * Hora: 16:21
+ * Versión de su código: 1.0
+ * Autor: Ing(c) Cristhian Giraldo Orozco
+ * Nombre del lenguaje: C 201710
+ * Versión del copilador: gcc (GCC) 12.2.1 20230111
+ * Presentado a: PHD Ricardo Moreno Laverde
+ * Universidad : Universidad Tecnologica de Pereira
+ * Programa: Ingenieria en sistemas y computación
+ * Descripción: Programa que hace el juego del ahorcado
  */
 
 #include <stdio.h>
