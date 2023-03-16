@@ -13,8 +13,8 @@
 
 char *setPalabra();
 int randomNum();
-void ingresaLetra(char[], char[], int *);
-void impAhorcado(int intentos, char palabraOculta[]);
+void ingresaLetra(char[], char[], int *, char[]);
+void impAhorcado(int, char[], char[]);
 
 int main()
 {
@@ -27,6 +27,9 @@ int main()
 
     //* Variable que contendrá el número de intentos que le quedan al usuario
     int intentos = 8;
+
+    //* Variable que contendrá las letras que ha utilizado
+    char letrasUsadas[8] = "";
 
     char palabra[15] = "";
     // * Copiamos en la variable una "palabra" generada en la función setPalabra()
@@ -54,16 +57,16 @@ int main()
      * editar directamente su valor y no de manera "local" en la función.
      */
 
-    ingresaLetra(palabra, &palabraOculta, &intentos);
+    ingresaLetra(palabra, &palabraOculta, &intentos, letrasUsadas);
 
     return 0;
 }
 
 // ? Función para que el usuario ingrese una letra y se verifique si esta o no
 
-void ingresaLetra(char palabra[], char palabraOculta[], int *inte)
+void ingresaLetra(char palabra[], char palabraOculta[], int *inte, char letrasU[8])
 {
-    impAhorcado(*inte, palabraOculta);
+    impAhorcado(*inte, palabraOculta, letrasU);
 
     //* Variable que contendrá la letra ingresada por el usuario
     char letra = "";
@@ -106,30 +109,32 @@ void ingresaLetra(char palabra[], char palabraOculta[], int *inte)
         if (strcmp(palabra, palabraOculta) == 0)
         {
             /* Fin del programa */
-            impAhorcado(*inte, palabraOculta);
+            impAhorcado(*inte, palabraOculta, letrasU);
             printf("\nGANASTE!!!\n");
 
         } //! En caso de no haber ganado aún
         else
         {
-            printf("Acertaste\n");
             //* Volvemos a llamar a la función ingresaLetra
-            ingresaLetra(palabra, palabraOculta, inte);
+            ingresaLetra(palabra, palabraOculta, inte, letrasU);
         } // Fin del if
-    }     //! En caso de no acertar la palabra
+    }     //! En caso de no acertar la letras+
     else
     {
+        //* Asignamos la letra al string de letras usadas "letrasU"
+        letrasU[(8 - *inte)] = toupper(letra);
+
         //* Condicional para saber si se acabaron los intentos
         if (*inte > 2)
         {
             //* Restamos 1 intento y volvemos a ejecutar la función
             *inte -= 1;
-            ingresaLetra(palabra, palabraOculta, inte);
+            ingresaLetra(palabra, palabraOculta, inte, letrasU);
         } //! En caso de no tener mas intentos
         else
         {
             //* En caso de que se acaben los intentos acabar el programa
-            impAhorcado(1, palabraOculta);
+            impAhorcado(1, palabraOculta, letrasU);
             printf("\nTe has quedado sin intentos\n");
 
         } // Fin del if
@@ -139,100 +144,105 @@ void ingresaLetra(char palabra[], char palabraOculta[], int *inte)
 
 // ? Función para imprimir el ahorcado
 
-void impAhorcado(int intentos, char palabraOculta[])
+void impAhorcado(int intentos, char palabraOculta[], char letrasU[])
 {
+    //* Limpiamos la pantalla para una pero UX
+    system("clear");
+
+    //* Según los intentos restantes se imprime la forma del ahorcado
     switch (intentos)
     {
 
     case 8:
-        system("clear");
-        printf("█████████        \n");
-        printf("█                 \n");
-        printf("█                 \n");
-        printf("█                ");
+        printf("JUEGO AHORCADO\n");
+        printf("+----+        \n");
+        printf("|              ");
         printf("%s\n", palabraOculta);
-        printf("█                \n");
-        printf("█                \n");
-        printf("█                \n");
+        printf("|              \n");
+        printf("|              ");
+        printf("Letras Usadas: %s\n", letrasU);
+        printf("|              \n");
+        printf("-----       \n");
         break;
     case 7:
-        system("clear");
-        printf("█████████        \n");
-        printf("█       |         \n");
-        printf("█       |         \n");
-        printf("█       O        ");
+        printf("JUEGO AHORCADO\n");
+        printf("+----+        \n");
+        printf("|     O        ");
         printf("%s\n", palabraOculta);
-        printf("█                \n");
-        printf("█                \n");
-        printf("█                \n");
+        printf("|              \n");
+        printf("|              ");
+        printf("Letras Usadas: %s\n", letrasU);
+        printf("|              \n");
+        printf("-----       \n");
         break;
     case 6:
-        system("clear");
-        printf("█████████        \n");
-        printf("█       |         \n");
-        printf("█       |         \n");
-        printf("█       O        ");
+        printf("JUEGO AHORCADO\n");
+        printf("+----+        \n");
+        printf("|     O        ");
         printf("%s\n", palabraOculta);
-        printf("█       |        \n");
-        printf("█                \n");
-        printf("█                \n");
+        printf("|     |        \n");
+        printf("|              ");
+        printf("Letras Usadas: %s\n", letrasU);
+        printf("|              \n");
+        printf("-----       \n");
         break;
     case 5:
-        system("clear");
-        printf("█████████        \n");
-        printf("█       |         \n");
-        printf("█       |         \n");
-        printf("█       O        ");
+        printf("JUEGO AHORCADO\n");
+        printf("+----+        \n");
+        printf("|     O        ");
         printf("%s\n", palabraOculta);
-        printf("█       |\\       \n");
-        printf("█                \n");
-        printf("█                \n");
+        printf("|     |\\       \n");
+        printf("|              ");
+        printf("Letras Usadas: %s\n", letrasU);
+        printf("|              \n");
+        printf("-----       \n");
         break;
     case 4:
-        system("clear");
-        printf("█████████        \n");
-        printf("█       |         \n");
-        printf("█       |         \n");
-        printf("█       O        ");
+        printf("JUEGO AHORCADO\n");
+        printf("+----+        \n");
+        printf("|     O        ");
         printf("%s\n", palabraOculta);
-        printf("█      /|\\       \n");
-        printf("█                \n");
-        printf("█                \n");
+        printf("|    /|\\       \n");
+        printf("|              ");
+        printf("Letras Usadas: %s\n", letrasU);
+        printf("|              \n");
+        printf("-----       \n");
         break;
+
     case 3:
-        system("clear");
-        printf("█████████        \n");
-        printf("█       |         \n");
-        printf("█       |         \n");
-        printf("█       O        ");
+        printf("JUEGO AHORCADO\n");
+        printf("+----+        \n");
+        printf("|     O        ");
         printf("%s\n", palabraOculta);
-        printf("█      /|\\       \n");
-        printf("█       |        \n");
-        printf("█                \n");
+        printf("|    /|\\       \n");
+        printf("|     |        ");
+        printf("Letras Usadas: %s\n", letrasU);
+        printf("|              \n");
+        printf("-----       \n");
         break;
 
     case 2:
-        system("clear");
-        printf("█████████        \n");
-        printf("█       |         \n");
-        printf("█       |         \n");
-        printf("█       O        ");
+        printf("JUEGO AHORCADO\n");
+        printf("+----+        \n");
+        printf("|     O        ");
         printf("%s\n", palabraOculta);
-        printf("█      /|\\       \n");
-        printf("█       |        \n");
-        printf("█      /         \n");
+        printf("|    /|\\       \n");
+        printf("|     |        ");
+        printf("Letras Usadas: %s\n", letrasU);
+        printf("|    /         \n");
+        printf("-----       \n");
         break;
 
     case 1:
-        system("clear");
-        printf("█████████        \n");
-        printf("█       |         \n");
-        printf("█       |         \n");
-        printf("█       O        ");
+        printf("JUEGO AHORCADO\n");
+        printf("+----+        \n");
+        printf("|     O        ");
         printf("%s\n", palabraOculta);
-        printf("█      /|\\       \n");
-        printf("█       |        \n");
-        printf("█      / \\       \n");
+        printf("|    /|\\       \n");
+        printf("|     |        ");
+        printf("Letras Usadas: %s\n", letrasU);
+        printf("|    / \\       \n");
+        printf("-----       \n");
         break;
 
     default:
