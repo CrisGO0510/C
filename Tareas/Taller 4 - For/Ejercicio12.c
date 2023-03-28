@@ -21,15 +21,10 @@ int main()
 
     // Variable donde se guardará el número ingresado por el usuario
     int numero = 0;
-    // Variable donde se guardará la cifras del número ingresado por el usuario
-    int contador = 0;
     // Variable donde se guardará cada uno de los dígitos del número a medida que se va dividiendo entre 10 en el ciclo
     int cifra = 0;
-    // Variable donde se guardará el resultado del número invertido
-    int resultado = 0;
-
     // Pedimos el número al usuario
-    printf("Este programa lee desde el teclado un número entero y lo imprime al revés.\nEntre el número: ");
+    printf("Este programa lee desde el teclado un número entero y lo imprime al revés.\nIngrese el número: ");
     scanf("%i", &numero);
 
     /*
@@ -38,20 +33,12 @@ int main()
         A su vez declaramos la variable "i" como un float para poder parar el programa cuando las divisiones lleguen a decimal
     */
 
-    for (int i = numero; i != 0; i /= 10)
-    {
-        contador++;
-    }
-
     // Invierte el número
     for (int i = numero; i != 0; i /= 10)
     {
         cifra = i % 10;
-        resultado += cifra * pow(10, --contador);
-        printf("\ncontador: %i\n", contador);
+        printf("%i", cifra);
     }
-
-    printf("\n%i", resultado);
 
     return 0;
 }

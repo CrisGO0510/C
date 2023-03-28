@@ -15,8 +15,8 @@
 #include <stdio.h>
 #include <math.h>
 
-int fac(int);
-double euler(int, int, int);
+long double fac(int);
+long double euler(int, int, int);
 
 int main()
 {
@@ -34,13 +34,13 @@ int main()
     scanf("%i", &term);
 
     // Imprimimos lo que nos retorne la función de euler
-    printf("%.10fl", euler(x, 0, term));
+    printf("%Lf", euler(x, 0, term));
 
     return 0;
 }
 
 // Función que retorna la factorial de X, siendo  X será el parametro a utilizar para generar y multiplicar los numeros
-int fac(int x)
+long double fac(int x)
 {
     // Creamos una condicional que nos dirá si el numero es mayor a cero
     if (x > 0)
@@ -61,7 +61,7 @@ int fac(int x)
     den = Variable para contará los términos de la serie de taylor y a su vez será usada como denominador para la misma
     ter = Variable que parará la recursividad a los terminos ingresados por el usuario
 */
-double euler(int x, int den, int ter)
+long double euler(int x, int den, int ter)
 {
     if (den < ter)
     {

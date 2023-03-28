@@ -26,7 +26,7 @@ int main()
     // Variable que usaremos para parar el ciclo for
     int i = 0;
     // Pedimos la cantidad de datos a mostrar al usuario
-    printf("Ingresa la cantidad de términos que desea ver: ");
+    printf("Ingresa la cantidad de términos que desea ver de la serie de Narayana: ");
     scanf("%i", &i);
     // Bucle para generar e imprimir la sucesión de Narayana
     for (; i > 0; i--)

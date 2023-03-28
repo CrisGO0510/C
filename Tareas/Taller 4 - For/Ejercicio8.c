@@ -20,7 +20,7 @@ int main()
     // Variable que usaremos para parar el ciclo for
     int stop = 0;
     // Pedimos la cantidad de datos a mostrar al usuario
-    printf("Ingresa la cantidad de términos que desea ver: ");
+    printf("Ingresa la cantidad de términos que desea ver de la serie de Catalán: ");
     scanf("%i", &stop);
     // Bucle para generar e imprimir la sucesión de Catalán
     for (int i = 0; i < stop; i++)

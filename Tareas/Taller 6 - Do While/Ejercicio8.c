@@ -17,11 +17,13 @@ long long int fac(int);
 int main()
 {
     // Declaración de variables
-    // Variable que usaremos para parar el ciclo for
+    // Variable que usaremos para parar el ciclo do
     int stop = 0;
+
     // Pedimos la cantidad de datos a mostrar al usuario
     printf("Ingresa la cantidad de términos que desea ver: ");
     scanf("%i", &stop);
+    
     // Variable que será utilizada para incrementarla cada iteración y así pare el ciclo
     int i = 0;
     // Bucle para generar e imprimir la sucesión de Catalán

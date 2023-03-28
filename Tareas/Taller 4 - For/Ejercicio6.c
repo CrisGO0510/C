@@ -23,10 +23,10 @@ int main()
     int num3 = 0;
     // Variable donde guardaremos de manera temporal la suma de num1 y num2
     int aux = 0;
-    // Variable que usaremos para parar el ciclo for
+    // Variable que usaremos para parar el ciclo
     int i = 0;
     // Pedimos la cantidad de datos a mostrar al usuario
-    printf("Ingresa la cantidad de términos que desea ver: ");
+    printf("Ingresa la cantidad de términos que desea ver de la serie de Padovan: ");
     scanf("%i", &i);
     // Bucle para generar e imprimir la sucesión de Padovan
     for (; i > 0; i--)

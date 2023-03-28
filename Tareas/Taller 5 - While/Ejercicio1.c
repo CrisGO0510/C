@@ -22,8 +22,6 @@ int main()
     int num2 = 1;
     // Variable donde guardaremos de manera temporal la suma de num1 y num2
     int aux = 0;
-    // Variable que usaremos para parar el ciclo for
-    int i = 0;
     // Imprime un mensaje en pantalla
     printf("La serie de Fibonacci hasta 10,000 es: \n");
 

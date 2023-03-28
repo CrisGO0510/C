@@ -44,5 +44,6 @@ int main()
         // Hacemos el decremento después de cada iteración para parar el programa
         i--;
     }
+    
     return 0;
 }

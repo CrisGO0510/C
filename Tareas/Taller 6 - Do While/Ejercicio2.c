@@ -15,8 +15,8 @@
 
 int main()
 {
-    // Se definen las variables enteras x, y, temp y sum.
-    int x = 0, y = 1, temp, sum = 0;
+    // Se definen las variables enteras x, y, aux y sum.
+    int x = 0, y = 1, aux, sum = 0;
 
     // Se muestra un mensaje en pantalla utilizando la función printf().
     printf("Este programa presenta la suma de los elementos de la serie de Fibonacci entre 0 y 100.\n");
@@ -31,18 +31,18 @@ int main()
         // Se añade el valor de x a la variable sum.
         sum += x;
 
-        // Se calcula el siguiente número de Fibonacci sumando x e y y se almacena en la variable temp.
-        temp = x + y;
+        // Se calcula el siguiente número de Fibonacci sumando x e y y se almacena en la variable aux.
+        aux = x + y;
 
         // Se actualiza el valor de x al valor de y.
         x = y;
 
-        // Se actualiza el valor de y al valor de temp.
-        y = temp;
+        // Se actualiza el valor de y al valor de aux.
+        y = aux;
     } while (x <= 100);
 
     // Se imprime la suma de los elementos de la serie de Fibonacci utilizando la función printf().
-    printf("\nLa suma de los elementos es: %i\n", sum);
+    printf(" y la suma de los elementos es: %i\n", sum);
 
     // Se retorna 0 para indicar que el programa ha finalizado correctamente.
     return 0;

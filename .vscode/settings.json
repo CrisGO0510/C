@@ -2,6 +2,10 @@
     "files.associations": {
         "random": "c",
         "sdl.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "ratio": "c",
+        "string.h": "c",
+        "sstream": "c",
+        "stdlib.h": "c"
     }
 }

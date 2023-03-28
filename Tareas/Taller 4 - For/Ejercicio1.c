@@ -16,7 +16,6 @@
 int main()
 {
     // Declaración de variables
-    // Declaramos varaibles para hacer el método burbuja
     // Variables que usaremos para establecer el inicio del fibonacci
     int num1 = 0;
     int num2 = 1;

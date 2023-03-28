@@ -16,7 +16,7 @@
 int main()
 {
     // Declaración de variables
-    // Declaramos varaibles para hacer el método burbuja
+    // Declaramos variables para hacer el método burbuja
     // Variables que usaremos para establecer el inicio del luca
     int num1 = 2;
     int num2 = 1;
