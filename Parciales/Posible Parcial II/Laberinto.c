@@ -37,10 +37,10 @@ int main()
     // imprimimos el tablero
     imp(tablero);
 
-    // Definimos si es posible resolverlo
-    validacionesPrincipales(tablero, salida);
+    // // Definimos si es posible resolverlo
+    // validacionesPrincipales(tablero, salida);
 
-    buscarSalida(tablero, buscador, salida);
+    // buscarSalida(tablero, buscador, salida);
 }
 
 // ? Función que retorna un '1' con un 25% y un '0' con un 75%

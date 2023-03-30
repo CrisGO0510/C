@@ -37,7 +37,7 @@ int main()
 
     // * Creamos un while que no pare hasta que hayan pasado 9 acciones o alguno haya ganado
 
-    while (i >= 9 || win(tablero) == 0)
+    while (i >= 8 || win(tablero) == 0)
     {
         // Imprimimos el tablero
         impTabla(tablero);
