@@ -41,14 +41,19 @@ Plano en Z(Fotografia) | Líneas sospechosas x plano(foto) | Puntos sospechosos 
 // ? Prototipos de las funciones:
 int randomNum();
 void imp(int[100][100][100], int);
-int puntoSus(int [100][100][100], int, int, int);
+int puntoSus(int[100][100][100], int, int, int);
+int lineasSus(int[100][100][100], int, int[100][100][100]);
+void rellenarLinea(int vector[100][100][100], int, int, int, int);
 
 int main()
 {
-    srand(time(NULL));
+    srand(1);
 
     // Declaramos vector tridimencional (X, Y, Z), el cuál contendrá la resonancia, y sus valores seran [0,255]
     int resonancia[100][100][100];
+
+    // Declaramos vector tridimencional (X, Y, Z), el cuál contendrá las lineas sospechosas de la resonancia y se rellenará de 0 y 1, siendo 0 espacios " " y 1 las lineas a imprimir "█"
+    int vectorLineas[100][100][100];
 
     // Sentencia for para rellenar el vector de numeros seudoaleatorios entre el 0 y el 255
     // For para rellenar por cada iteración una "hoja" (Z).
@@ -62,22 +67,35 @@ int main()
             {
                 // Llamamos la función "randomNum" para conseguir rellenar el valor de ese punto (X, Y, Z), y la siguiente iteración pasamos al siguiente punto a la derecha.
                 resonancia[x][y][z] = randomNum();
+
+                // Rellenamos el vector de lineas de 0's junto al otro vector para ahorrar recursos
+                vectorLineas[x][y][z] = 0;
             }
         }
     }
 
-    imp(resonancia, 0);
-
-    puntoSus(resonancia, 2, 2, 2);
+    printf("LINEAS = %i\n", lineasSus(resonancia, 1, vectorLineas));
+    imp(vectorLineas, 1);
 
     return 0;
+}
+
+// ? Función que rellenará una fila de un vector desde Y valor hasta llegada con el valor 1
+void rellenarLinea(int vector[100][100][100], int x, int y, int z, int llegada)
+{
+    // Hacemos un ciclo que rellenará las posiciones del vector
+    while (y < llegada)
+    {
+        // Asignamos el valor
+        vector[x][y++][z] = 1;
+    }
 }
 
 // ? Función que retorna un numero seudoaleatorio
 int randomNum()
 {
     // Declaramos una variable que generará un número entre el 0 y el 255, para retornarlo luego
-    int numeroSeudo = rand() % 256;
+    int numeroSeudo = rand() % 25 + 20;
 
     return numeroSeudo;
 }
@@ -124,7 +142,7 @@ void imp(int vector[100][100][100], int z)
         for (int y = 0; y < 100; y++)
         {
             // TODO: Condicional para determinar si imprime "█" ó " ".
-            if (vector[x][y][z] >= 20 && vector[x][y][z] <= 40)
+            if (vector[x][y][z] == 1)
             {
                 // Imprimimos que el punto es sospechoso "█"
                 printf("█");
@@ -134,6 +152,7 @@ void imp(int vector[100][100][100], int z)
                 // Imprimimos que el punto NO es sospechoso " "
                 printf(" ");
             }
+
         } //! FIN DEL FOR PARA IMRPIMIR PUNTOS EN Y
           // Imprimimos el valor de la fila(X)
         printf("| %i\n", x % 10);
@@ -205,17 +224,79 @@ int puntoSus(int vector[100][100][100], int x, int y, int z)
             {
                 // vector[x - i][y - j][z - k] = 40;
 
-                if (vector[x - i][y - j][z - k] >= 20 && vector[x - i][y - j][z - k] <= 40)
+                // Condicional para saltarse el punto central
+                if (k == 0 && j == 0 && i == 0)
                 {
-                    cont++;
+                    // Es el punto centra, por lo tanto lo ignora, y pasa a la siguiente iteración
                 }
+                else
+                {
+                    if (vector[x - i][y - j][z - k] >= 20 && vector[x - i][y - j][z - k] <= 40)
+                    {
+                        cont++;
+                    }
+                }
+
             } //! FIN DEL FOR PARA ANALIZAR LOS PUNTOS EN X
 
         } //! FIN DEL FOR PARA CAMBIAR EL VALOR DE Y
 
     } //! FIN DEL FOR PARA CAMBIAR EL VALOR DE Z
 
-    printf("A: %i", cont);
+    // Condición que retorna 1 si es un punto sospechoso y 0 si no lo es
+    if (cont == 26)
+    {
+        // Es sospechoso
+        return 1;
+    }
+    else
+    {
+        // No es sospechoso
+        return 0;
+    }
+}
 
-    return 0;
+// ? Función que buscará las lineas sospechosas en un plano Z
+int lineasSus(int vector[100][100][100], int z, int vectorAuxiliar[100][100][100])
+{
+    // Declaramos una variable contador para saber cuantos puntos sospechosos hay en una linea
+    int cont = 0;
+
+    // Declaramos una variable contador para saber cuantas lineas en total hubieron en este plano
+    int lineas = 0;
+
+    // Hacemos un ciclo for que recorrerá las 99 filas de un plano(Z) del vector, para analizar donde y cuantas lineas sospechosas hay
+    for (int x = 0; x < 100; x++)
+    {
+        // Hacemos un ciclo que recorrerá cada una de las posiciones de una fila, para analizar cuantas lineas sospechosas hay
+        for (int y = 0; y < 100; y++)
+        {
+            // Verificamos si en la posición actual hay un punto sospechoso
+            if (puntoSus(vector, x, y, z))
+            {
+                // Si se encuentra un punto sospechoso se incrementará en 1 el valor del contador(cont)
+                cont++;
+            } // ! FIN IF DE CUANDO ENCUENTRA PUNTO SOSPECHOSO
+            else
+            {
+                // Si no es un punto sospechoso entramos a la siguiente condicional:
+
+                // Si cont es mayor o igual a 3 significa que habia una linea y justo acabó, por lo guardamos los valores en el vectorAuxiliar, en caso contrario significa que no hay linea y solo hacemos el contador 0
+                if (cont >= 3)
+                {
+                    // Rellenamos la linea con la función rellenar vec, restandole cont a y, para saber donde empezó y terminando en y que seria el fin de la linea
+                    rellenarLinea(vectorAuxiliar, x, y - cont, z, y);
+
+                    // Como encontramos una linea aumentamos en 1 la variable "lineas"
+                    lineas++;
+                } // ! FIN CONDICIONAL DE VERIFICACIÓN DE LINEA
+
+                // Hacemos el contador 0 para seguir con la siguiente linea
+                cont = 0;
+            } // ! FIN DE ELSE CUANDO NO ENCUENTRA PUNTO SOSPECHOSO
+        } // ! FIN FOR, DANDO PASO A LA SIGUIENTE POSICIÓN
+    } // ! FIN FOR, DANDO PASO A LA SIGUIENTE FILA
+
+    // Retornamos la cantidad de lineas en este plano
+    return lineas;
 }
