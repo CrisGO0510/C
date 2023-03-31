@@ -47,244 +47,246 @@ void rellenarVec(int vector[100][100][100], int, int, int, int);
 
 int main()
 {
-   srand(1);
+    srand(1);
 
-   // Declaramos vector tridimencional (X, Y, Z), el cuál contendrá la resonancia, y sus valores seran [0,255]
-   int resonancia[100][100][100];
+    // Declaramos vector tridimencional (X, Y, Z), el cuál contendrá la resonancia, y sus valores seran [0,255]
+    int resonancia[100][100][100];
 
-   // Declaramos vector tridimencional (X, Y, Z), el cuál contendrá las lineas sospechosas de la resonancia y se rellenará de 0 y 1, siendo 0 espacios " " y 1 las lineas a imprimir "█"
-   int vectorLineas[100][100][100];
+    // Declaramos vector tridimencional (X, Y, Z), el cuál contendrá las lineas sospechosas de la resonancia y se rellenará de 0 y 1, siendo 0 espacios " " y 1 las lineas a imprimir "█"
+    int vectorLineas[100][100][100];
 
-   // Sentencia for para rellenar el vector de numeros seudoaleatorios entre el 0 y el 255
-   // For para rellenar por cada iteración una "hoja" (Z).
-   for (int z = 0; z < 100; z++)
-   {
-      // Sentencia for para rellenar por cada iteración una fila (X).
-      for (int x = 0; x < 100; x++)
-      {
-         // Sentencia for para rellenar un punto por cada iteración (Y).
-         for (int y = 0; y < 100; y++)
-         {
-            // Llamamos la función "randomNum" para conseguir rellenar el valor de ese punto (X, Y, Z), y la siguiente iteración pasamos al siguiente punto a la derecha.
-            resonancia[x][y][z] = randomNum();
+    // Sentencia for para rellenar el vector de numeros seudoaleatorios entre el 0 y el 255
+    // For para rellenar por cada iteración una "hoja" (Z).
+    for (int z = 0; z < 100; z++)
+    {
+        // Sentencia for para rellenar por cada iteración una fila (X).
+        for (int x = 0; x < 100; x++)
+        {
+            // Sentencia for para rellenar un punto por cada iteración (Y).
+            for (int y = 0; y < 100; y++)
+            {
+                // Llamamos la función "randomNum" para conseguir rellenar el valor de ese punto (X, Y, Z), y la siguiente iteración pasamos al siguiente punto a la derecha.
+                resonancia[x][y][z] = randomNum();
 
-            // Rellenamos el vector de lineas de 0's junto al otro vector para ahorrar recursos
-            vectorLineas[x][y][z] = 0;
-         }
-      }
-   }
+                // Rellenamos el vector de lineas de 0's junto al otro vector para ahorrar recursos
+                vectorLineas[x][y][z] = 0;
+            }
+        }
+    }
 
-   imp(resonancia, 1);
 
-   return 0;
+    lineasSus(resonancia, 97, vectorLineas);
+    imp(resonancia, 97);
+
+    return 0;
 }
 
 // ? Función que rellenará una fila de un vector desde Y valor hasta llegada con el valor 1
 
 void rellenarVec(int vector[100][100][100], int x, int y, int z, int llegada)
 {
-   // Hacemos un ciclo que rellenará las posiciones del vector
-   while (y <= llegada)
-   {
-      // Asignamos el valor
-      vector[x][y++][z] = 1;
-   }
+    // Hacemos un ciclo que rellenará las posiciones del vector
+    while (y <= llegada)
+    {
+        // Asignamos el valor
+        vector[x][y++][z] = 1;
+    }
 }
 
 // ? Función que retorna un numero seudoaleatorio
 int randomNum()
 {
-   // Declaramos una variable que generará un número entre el 0 y el 255, para retornarlo luego
-   int numeroSeudo = rand() % 25 + 20;
+    // Declaramos una variable que generará un número entre el 0 y el 255, para retornarlo luego
+    int numeroSeudo = rand() % 20 + 25;
 
-   return numeroSeudo;
+    return numeroSeudo;
 }
 
 // ? Función que imprime la resonancia (Vector) en la hoja(Z)
 void imp(int vector[100][100][100], int z)
 {
-   // Imprimimos el valor de Z para guiarnos
-   printf("Z: %i\n\n    ", z);
+    // Imprimimos el valor de Z para guiarnos
+    printf("Z: %i\n\n    ", z);
 
-   // Sentencia for para imprimir las decenas del valor de la columna
-   for (int i = 0; i < 90; i++)
-   {
-      // Cada 10 valores se le sumará 1 a la impresión
-      if (i % 10 == 0)
-      {
-         // Imprimimos el valor de las decenas
-         printf("         %i", i / 10 + 1);
-      }
-   } //! FIN DEL FOR PARA IMPRIMIR LAS DECENAS
+    // Sentencia for para imprimir las decenas del valor de la columna
+    for (int i = 0; i < 90; i++)
+    {
+        // Cada 10 valores se le sumará 1 a la impresión
+        if (i % 10 == 0)
+        {
+            // Imprimimos el valor de las decenas
+            printf("         %i", i / 10 + 1);
+        }
+    } //! FIN DEL FOR PARA IMPRIMIR LAS DECENAS
 
-   printf("\n   ");
+    printf("\n   ");
 
-   // Imprimimos el valor de las columnas
-   for (int i = 0; i < 10; i++)
-   {
+    // Imprimimos el valor de las columnas
+    for (int i = 0; i < 10; i++)
+    {
 
-      printf("0123456789");
-   }
+        printf("0123456789");
+    }
 
-   // Imprimimos la linea separadora entre los numeros y la resonancia
-   printf("\n  +----------------------------------------------------------------------------------------------------+\n");
+    // Imprimimos la linea separadora entre los numeros y la resonancia
+    printf("\n  +----------------------------------------------------------------------------------------------------+\n");
 
-   // Declaramos segunda sentencia for, para imprimir una fila(X) por cada iteración
-   for (int x = 0; x < 100; x++)
-   {
-      // Imprimimos el valor de la fila(X)
-      printf("%i |", x % 10);
-
-      /* Sentencia for que me imprimirá uno a uno cada punto de la resonancia.
-      Se consideran sospechosos aquellos puntos para los que TODOS los puntos adyacentes
-      tengan un valor entre 20 y 40 (esto incluye los puntos pertenecientes al mismo plano,
-      al plano inferior y al plano superior). */
-      for (int y = 0; y < 100; y++)
-      {
-         // TODO: Condicional para determinar si imprime "█" ó " ".
-         if (puntoSus(vector, x, y, z))
-         {
-            // Imprimimos que el punto es sospechoso "█"
-            printf("█");
-         }
-         else
-         {
-            // Imprimimos que el punto NO es sospechoso " "
-            printf(" ");
-         }
-
-      } //! FIN DEL FOR PARA IMRPIMIR PUNTOS EN Y
+    // Declaramos segunda sentencia for, para imprimir una fila(X) por cada iteración
+    for (int x = 0; x < 100; x++)
+    {
         // Imprimimos el valor de la fila(X)
-      printf("| %i\n", x % 10);
-   } //! FIN DEL FOR PARA IMPRIMIR LA LINEA X
+        printf("%i |", x % 10);
 
-   // Imprimimos la linea separadora entre los numeros y la resonancia
-   printf("  +----------------------------------------------------------------------------------------------------+\n   ");
+        /* Sentencia for que me imprimirá uno a uno cada punto de la resonancia.
+        Se consideran sospechosos aquellos puntos para los que TODOS los puntos adyacentes
+        tengan un valor entre 20 y 40 (esto incluye los puntos pertenecientes al mismo plano,
+        al plano inferior y al plano superior). */
+        for (int y = 0; y < 100; y++)
+        {
+            // TODO: Condicional para determinar si imprime "█" ó " ".
+            if (puntoSus(vector,x,y,z))
+            {
+                // Imprimimos que el punto es sospechoso "█"
+                printf("█");
+            }
+            else
+            {
+                // Imprimimos que el punto NO es sospechoso " "
+                printf(" ");
+            }
 
-   // Imprimimos el valor de las columnas
-   for (int i = 0; i < 10; i++)
-   {
-      printf("0123456789");
-   }
+        } //! FIN DEL FOR PARA IMRPIMIR PUNTOS EN Y
+          // Imprimimos el valor de la fila(X)
+        printf("| %i\n", x % 10);
+    } //! FIN DEL FOR PARA IMPRIMIR LA LINEA X
 
-   printf("\n   ");
+    // Imprimimos la linea separadora entre los numeros y la resonancia
+    printf("  +----------------------------------------------------------------------------------------------------+\n   ");
 
-   // Sentencia for para imprimir las decenas del valor de la columna
-   for (int i = 0; i < 90; i++)
-   {
-      // Cada 10 valores se le sumará 1 a la impresión
-      if (i % 10 == 0)
-      {
-         // Imprimimos el valor de las decenas
-         printf("         %i", i / 10 + 1);
-      }
-   } //! FIN DEL FOR PARA IMPRIMIR LAS DECENAS
+    // Imprimimos el valor de las columnas
+    for (int i = 0; i < 10; i++)
+    {
+        printf("0123456789");
+    }
 
-   printf("\n");
+    printf("\n   ");
+
+    // Sentencia for para imprimir las decenas del valor de la columna
+    for (int i = 0; i < 90; i++)
+    {
+        // Cada 10 valores se le sumará 1 a la impresión
+        if (i % 10 == 0)
+        {
+            // Imprimimos el valor de las decenas
+            printf("         %i", i / 10 + 1);
+        }
+    } //! FIN DEL FOR PARA IMPRIMIR LAS DECENAS
+
+    printf("\n");
 }
 
 // ? Función que determina si un punto es sospechoso
 int puntoSus(int vector[100][100][100], int x, int y, int z)
 {
-   /*
-       Determinaremos si un punto es sospechoso sí alrededor de él hay los puntos están entre 20 y 40, tanto en la capa superior, actual e inferior.
-       Es decir ni la hoja 0, ni la 99 se incluyen en este.
-   */
+    /*
+        Determinaremos si un punto es sospechoso sí alrededor de él hay los puntos están entre 20 y 40, tanto en la capa superior, actual e inferior.
+        Es decir ni la hoja 0, ni la 99 se incluyen en este.
+    */
 
-   // Declaramos un variable que contará cuantos puntos adyacentes hay (deben haber 26)
-   int cont = 0;
+    // Declaramos un variable que contará cuantos puntos adyacentes hay (deben haber 26)
+    int cont = 0;
 
-   // Primero hacemos las discriminantes
+    // Primero hacemos las discriminantes
 
-   // Ni en la primera, ni en la ultima capa puede haber un punto sospechoso
-   if (z == 0 || z == 99)
-   {
-      return 0;
-   }
+    // Ni en la primera, ni en la ultima capa puede haber un punto sospechoso
+    if (z == 0 || z == 99)
+    {
+        return 0;
+    }
 
-   // Ni el la primera, ni en la ultima fila pueden haber puntos sospechosos
-   if (x == 0 || x == 99)
-   {
-      return 0;
-   }
+    // Ni el la primera, ni en la ultima fila pueden haber puntos sospechosos
+    if (x == 0 || x == 99)
+    {
+        return 0;
+    }
 
-   // Ni el la primera, ni en la ultima columna pueden haber puntos sospechosos
-   if (y == 0 || y == 99)
-   {
-      return 0;
-   }
+    // Ni el la primera, ni en la ultima columna pueden haber puntos sospechosos
+    if (y == 0 || y == 99)
+    {
+        return 0;
+    }
 
-   // Ahora verificaremos si la coordenada esta rodeada de puntos entre 20 y 40
+    // Ahora verificaremos si la coordenada esta rodeada de puntos entre 20 y 40
 
-   for (int k = -1; k <= 1; k++)
-   {
-      for (int j = -1; j <= 1; j++)
-      {
-         for (int i = -1; i <= 1; i++)
-         {
-            // vector[x - i][y - j][z - k] = 40;
-
-            // Condicional para saltarse el punto central
-            if (k == 0 && j == 0 && i == 0)
+    for (int k = -1; k <= 1; k++)
+    {
+        for (int j = -1; j <= 1; j++)
+        {
+            for (int i = -1; i <= 1; i++)
             {
-               // Es el punto centra, por lo tanto lo ignora, y pasa a la siguiente iteración
-            }
-            else
-            {
-               if (vector[x - i][y - j][z - k] >= 20 && vector[x - i][y - j][z - k] <= 40)
-               {
-                  cont++;
-               }
-            }
+                // vector[x - i][y - j][z - k] = 40;
 
-         } //! FIN DEL FOR PARA ANALIZAR LOS PUNTOS EN X
+                // Condicional para saltarse el punto central
+                if (k == 0 && j == 0 && i == 0)
+                {
+                    // Es el punto centra, por lo tanto lo ignora, y pasa a la siguiente iteración
+                }
+                else
+                {
+                    if (vector[x - i][y - j][z - k] >= 20 && vector[x - i][y - j][z - k] <= 40)
+                    {
+                        cont++;
+                    }
+                }
 
-      } //! FIN DEL FOR PARA CAMBIAR EL VALOR DE Y
+            } //! FIN DEL FOR PARA ANALIZAR LOS PUNTOS EN X
 
-   } //! FIN DEL FOR PARA CAMBIAR EL VALOR DE Z
+        } //! FIN DEL FOR PARA CAMBIAR EL VALOR DE Y
 
-   // Condición que retorna 1 si es un punto sospechoso y 0 si no lo es
-   if (cont == 26)
-   {
-      // Es sospechoso
-      return 1;
-   }
-   else
-   {
-      // No es sospechoso
-      return 0;
-   }
+    } //! FIN DEL FOR PARA CAMBIAR EL VALOR DE Z
+
+    // Condición que retorna 1 si es un punto sospechoso y 0 si no lo es
+    if (cont == 26)
+    {
+        // Es sospechoso
+        return 1;
+    }
+    else
+    {
+        // No es sospechoso
+        return 0;
+    }
 }
 
 // ? Función que buscará las lineas sospechosas en un plano Z
 int lineasSus(int vector[100][100][100], int z, int vectorAuxiliar[100][100][100])
 {
-   // Declaramos una variable contador para saber cuantos puntos sospechosos hay en una linea
-   int cont = 0;
+    // Declaramos una variable contador para saber cuantos puntos sospechosos hay en una linea
+    int cont = 0;
 
-   // Hacemos un ciclo for que recorrerá las 99 filas de un plano(Z) del vector, para analizar donde y cuantas lineas sospechosas hay
-   for (int x = 40; x < 41; x++)
-   {
-      // Hacemos un ciclo que recorrerá cada una de las posiciones de una fila, para analizar cuantas lineas sospechosas hay
-      for (int y = 0; y < 100; y++)
-      {
-         if (puntoSus(vector, x, y, z))
-         {
-            cont++;
-         }
-         else
-         {
-            if (cont >= 3)
+    // Hacemos un ciclo for que recorrerá las 99 filas de un plano(Z) del vector, para analizar donde y cuantas lineas sospechosas hay
+    for (int x = 40; x < 41; x++)
+    {
+        // Hacemos un ciclo que recorrerá cada una de las posiciones de una fila, para analizar cuantas lineas sospechosas hay
+        for (int y = 0; y < 100; y++)
+        {
+            if (puntoSus(vector, x, y, z))
             {
-               // TODO: Si hay una linea y ya finalizó
-               rellenarVec(vectorAuxiliar, x, y - cont, z, y);
+                cont++;
             }
             else
             {
-               // No hay linea y hacemos el contador 0
-               cont = 0;
+                if (cont >= 3)
+                {
+                    // TODO: Si hay una linea y ya finalizó
+                    rellenarVec(vectorAuxiliar, x, y - cont, z, y);
+                }
+                else
+                {
+                    // No hay linea y hacemos el contador 0
+                    cont = 0;
+                }
             }
-         }
-      }
-   }
+        }
+    }
 }

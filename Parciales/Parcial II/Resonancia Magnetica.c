@@ -1,6 +1,6 @@
 /*
- * Fecha de publicación: YYYY/MM/DD
- * Hora: 00:00
+ * Fecha de publicación: 2023/03/30
+ * Hora: 21:45
  * Versión de su código: 1.0
  * Autor: Ing(c) Cristhian Giraldo Orozco
  * Nombre del lenguaje: C 201710
@@ -40,20 +40,23 @@ Plano en Z(Fotografia) | Líneas sospechosas x plano(foto) | Puntos sospechosos 
 
 // ? Prototipos de las funciones:
 int randomNum();
-void imp(int[100][100][100], int);
+void imp(int[100][100][100], int, int[100][100]);
 int puntoSus(int[100][100][100], int, int, int);
-int lineasSus(int[100][100][100], int, int[100][100][100]);
-void rellenarLinea(int vector[100][100][100], int, int, int, int);
+int lineasSus(int[100][100][100], int, int[100][100]);
+void rellenarLinea(int vector[100][100], int, int, int);
+void tabla(int[100][100][100], int[100][100]);
+void espacios(int);
+int cifras(int);
 
 int main()
 {
-    srand(1);
+    srand(time(NULL));
 
     // Declaramos vector tridimencional (X, Y, Z), el cuál contendrá la resonancia, y sus valores seran [0,255]
     int resonancia[100][100][100];
 
     // Declaramos vector tridimencional (X, Y, Z), el cuál contendrá las lineas sospechosas de la resonancia y se rellenará de 0 y 1, siendo 0 espacios " " y 1 las lineas a imprimir "█"
-    int vectorLineas[100][100][100];
+    int vectorLineas[100][100];
 
     // Sentencia for para rellenar el vector de numeros seudoaleatorios entre el 0 y el 255
     // For para rellenar por cada iteración una "hoja" (Z).
@@ -67,27 +70,76 @@ int main()
             {
                 // Llamamos la función "randomNum" para conseguir rellenar el valor de ese punto (X, Y, Z), y la siguiente iteración pasamos al siguiente punto a la derecha.
                 resonancia[x][y][z] = randomNum();
-
-                // Rellenamos el vector de lineas de 0's junto al otro vector para ahorrar recursos
-                vectorLineas[x][y][z] = 0;
             }
         }
     }
 
-    printf("LINEAS = %i\n", lineasSus(resonancia, 1, vectorLineas));
-    imp(vectorLineas, 1);
+    // Declaramos variable que servirá como opción para el menú
+    int opcion = 0;
+
+    // Declaramos variable que guardará el plano que desea ver el usuario
+    int plano = 0;
+
+    // Bucle que hará la lavor de menú
+    while (opcion != 3)
+    {
+        // Imprimimos las opciones
+        printf("\033[0m\n\tBienvenido\nIngrese una opción:\n");
+        printf("1. Imprimir plano de lineas sospechosas\n");
+        printf("2. Imprimir informe de la resonancia\n");
+        printf("3. Salir\n\n");
+
+        // Le pedimos al usuario un numero para confirmar a donde desea ir a través del menú
+        printf("Por favor ingrese la opción que desea ver: ");
+        scanf("%i", &opcion);
+
+        switch (opcion)
+        {
+        case 1:
+            // Imprimimos el plano ingresado por el usuario
+
+            // Le pedimos al usuario un numero para confirmar a donde desea ir a través del menú
+            printf("Por favor ingrese el número de plano que desea ver: ");
+            scanf("%i", &plano);
+
+            // Verificamos si el valor está dentro del rango
+            if (plano >= 0 && plano <= 99)
+            {
+                // Imprimimos el plano de lineas en la capa que ingresó el usuario (plano)
+                imp(resonancia, plano, vectorLineas);
+            }
+            else
+            {
+                // El plano está fuera del rango
+                printf("\033[31mEl número ingresado está fuera del rango del plano, por favor ingrese un valor en el rango [0,99]\033[0m\n\n");
+            }
+            break;  
+        case 2:
+            // Imprimimos el informe de todos los planos
+            tabla(resonancia, vectorLineas);
+            break;
+        case 3:
+            // Salir
+            printf("Hasta luego\n");
+            break;
+        default:
+            // Opción no valida
+            printf("\033[31mOpción no valida, por favor ingrese una opción correcta\033[0m\n\n");
+            break;
+        }
+    }
 
     return 0;
 }
 
 // ? Función que rellenará una fila de un vector desde Y valor hasta llegada con el valor 1
-void rellenarLinea(int vector[100][100][100], int x, int y, int z, int llegada)
+void rellenarLinea(int vector[100][100], int x, int y, int llegada)
 {
     // Hacemos un ciclo que rellenará las posiciones del vector
     while (y < llegada)
     {
         // Asignamos el valor
-        vector[x][y++][z] = 1;
+        vector[x][y++] = 1;
     }
 }
 
@@ -95,16 +147,31 @@ void rellenarLinea(int vector[100][100][100], int x, int y, int z, int llegada)
 int randomNum()
 {
     // Declaramos una variable que generará un número entre el 0 y el 255, para retornarlo luego
-    int numeroSeudo = rand() % 25 + 20;
+    int numeroSeudo = rand() % 256;
 
     return numeroSeudo;
 }
 
 // ? Función que imprime la resonancia (Vector) en la hoja(Z)
-void imp(int vector[100][100][100], int z)
+void imp(int vector[100][100][100], int z, int vectorAuxiliar[100][100])
 {
+
+    // Sentencia for para rellenar por cada iteración una fila (X).
+    for (int x = 0; x < 100; x++)
+    {
+        // Sentencia for para rellenar un punto por cada iteración (Y).
+        for (int y = 0; y < 100; y++)
+        {
+            // Rellenamos el vector de lineas con 0, para evitar que se superpongan los valores anteriores (formatearlo).
+            vectorAuxiliar[x][y] = 0;
+        }
+    }
+
+    // Llamamos la función para conseguir rellenar las lineas en el vector auxliar
+    lineasSus(vector, z, vectorAuxiliar);
+
     // Imprimimos el valor de Z para guiarnos
-    printf("Z: %i\n\n    ", z);
+    printf("Z: %i\n\n     ", z);
 
     // Sentencia for para imprimir las decenas del valor de la columna
     for (int i = 0; i < 90; i++)
@@ -117,7 +184,7 @@ void imp(int vector[100][100][100], int z)
         }
     } //! FIN DEL FOR PARA IMPRIMIR LAS DECENAS
 
-    printf("\n   ");
+    printf("\n    ");
 
     // Imprimimos el valor de las columnas
     for (int i = 0; i < 10; i++)
@@ -127,13 +194,23 @@ void imp(int vector[100][100][100], int z)
     }
 
     // Imprimimos la linea separadora entre los numeros y la resonancia
-    printf("\n  +----------------------------------------------------------------------------------------------------+\n");
+    printf("\n   ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐\n");
 
     // Declaramos segunda sentencia for, para imprimir una fila(X) por cada iteración
     for (int x = 0; x < 100; x++)
     {
-        // Imprimimos el valor de la fila(X)
-        printf("%i |", x % 10);
+
+        // Condicional para alinear correctamenta la tabla, porque los primeros numeros tienen 2 cifras
+        if (x >= 10)
+        {
+            // Imprimimos el valor de la fila(X)
+            printf("%i │", x);
+        }
+        else
+        {
+            // Imprimimos el valor de la fila(X) con 2 espacios, porque los primeros numeros solo tienen 1 cifra
+            printf("%i  │", x);
+        }
 
         /* Sentencia for que me imprimirá uno a uno cada punto de la resonancia.
         Se consideran sospechosos aquellos puntos para los que TODOS los puntos adyacentes
@@ -141,8 +218,8 @@ void imp(int vector[100][100][100], int z)
         al plano inferior y al plano superior). */
         for (int y = 0; y < 100; y++)
         {
-            // TODO: Condicional para determinar si imprime "█" ó " ".
-            if (vector[x][y][z] == 1)
+            // Condicional para determinar si imprime "█" ó " ".
+            if (vectorAuxiliar[x][y] == 1)
             {
                 // Imprimimos que el punto es sospechoso "█"
                 printf("█");
@@ -155,11 +232,11 @@ void imp(int vector[100][100][100], int z)
 
         } //! FIN DEL FOR PARA IMRPIMIR PUNTOS EN Y
           // Imprimimos el valor de la fila(X)
-        printf("| %i\n", x % 10);
+        printf("│ %i\n", x % 10);
     } //! FIN DEL FOR PARA IMPRIMIR LA LINEA X
 
     // Imprimimos la linea separadora entre los numeros y la resonancia
-    printf("  +----------------------------------------------------------------------------------------------------+\n   ");
+    printf("   └────────────────────────────────────────────────────────────────────────────────────────────────────┘\n    ");
 
     // Imprimimos el valor de las columnas
     for (int i = 0; i < 10; i++)
@@ -167,7 +244,7 @@ void imp(int vector[100][100][100], int z)
         printf("0123456789");
     }
 
-    printf("\n   ");
+    printf("\n     ");
 
     // Sentencia for para imprimir las decenas del valor de la columna
     for (int i = 0; i < 90; i++)
@@ -257,7 +334,7 @@ int puntoSus(int vector[100][100][100], int x, int y, int z)
 }
 
 // ? Función que buscará las lineas sospechosas en un plano Z
-int lineasSus(int vector[100][100][100], int z, int vectorAuxiliar[100][100][100])
+int lineasSus(int vector[100][100][100], int z, int vectorAuxiliar[100][100])
 {
     // Declaramos una variable contador para saber cuantos puntos sospechosos hay en una linea
     int cont = 0;
@@ -285,7 +362,7 @@ int lineasSus(int vector[100][100][100], int z, int vectorAuxiliar[100][100][100
                 if (cont >= 3)
                 {
                     // Rellenamos la linea con la función rellenar vec, restandole cont a y, para saber donde empezó y terminando en y que seria el fin de la linea
-                    rellenarLinea(vectorAuxiliar, x, y - cont, z, y);
+                    rellenarLinea(vectorAuxiliar, x, y - cont, y);
 
                     // Como encontramos una linea aumentamos en 1 la variable "lineas"
                     lineas++;
@@ -294,9 +371,97 @@ int lineasSus(int vector[100][100][100], int z, int vectorAuxiliar[100][100][100
                 // Hacemos el contador 0 para seguir con la siguiente linea
                 cont = 0;
             } // ! FIN DE ELSE CUANDO NO ENCUENTRA PUNTO SOSPECHOSO
-        } // ! FIN FOR, DANDO PASO A LA SIGUIENTE POSICIÓN
-    } // ! FIN FOR, DANDO PASO A LA SIGUIENTE FILA
+        }     // ! FIN FOR, DANDO PASO A LA SIGUIENTE POSICIÓN
+    }         // ! FIN FOR, DANDO PASO A LA SIGUIENTE FILA
 
     // Retornamos la cantidad de lineas en este plano
     return lineas;
+}
+
+// ? Función que imprimirá una tabla con toda la información obtenida
+void tabla(int vector[100][100][100], int vectorAuxiliar[100][100])
+{
+    // Imprimimos el encabezado de la tabla
+    printf("┌───────────┬────────────────────────────┬─────────────────────────────┐\n");
+    printf("│Plano en Z │ Lineas sospechosas x Plano │ Puntos sospechosos por plano│\n");
+    printf("├───────────┼────────────────────────────┼─────────────────────────────┤\n");
+
+    // Declaramos variable que contendrá la cantidad de puntos sospechosos encontrados
+    int puntos = 0;
+
+    // Bucle para obtener e imprimir todos los datos
+    for (int z = 1; z < 99; z++)
+    {
+        // Bucle para contar todos los puntos sospechosos en el plano
+        for (int x = 0; x < 100; x++)
+        {
+            // Bucle para navegar por cada una de las coordenadas del plano X [0,99]
+            for (int y = 0; y < 100; y++)
+            {
+                // Sumamos el valor actual de puntos mas lo que nos retorne la función "puntosSus"
+                puntos += puntoSus(vector, x, y, z);
+            }
+        }
+        // Imprimimos los valores
+        printf("│%i", z);
+        espacios(11 - cifras(z));
+        printf("│%i", lineasSus(vector, z, vectorAuxiliar));
+        espacios(28 - cifras(lineasSus(vector, z, vectorAuxiliar)));
+        printf("│%i", puntos);
+        espacios(29 - cifras(puntos));
+        printf("│\n");
+
+        // Condicional para que cuando llegue al final imprima una base mas estetica
+        if (z == 98)
+        {
+            printf("└───────────┴────────────────────────────┴─────────────────────────────┘\n");
+        }
+        else
+        {
+            printf("├───────────┼────────────────────────────┼─────────────────────────────┤\n");
+        }
+
+        // Volvemos a puntos 0 antes de la iteración para que cuente en el siguiente plano
+        puntos = 0;
+    }
+}
+
+// ? Función que dependiendo el numero ingresado me imprime X veces espacios ' '
+void espacios(int num)
+{
+    // Bucle para imprimir un espacio por cada iteración
+    while (num > 0)
+    {
+        printf(" ");
+        // Hacemos el decremento a la variable num
+        num--;
+    }
+}
+
+// ? Función que cuenta las cifras del numero enviado como parametro "num"
+int cifras(int num)
+{
+    // Si el valor de num es igual a 0 retornamos que tiene una cifra
+    if (num == 0)
+    {
+        return 1;
+    }
+    else
+    {
+        // Declaramos variable que me contará cuantas cifras llevo
+        int contador = 0;
+
+        // Haremos un bucle donde por cada iteración dividiremos por 10 el numero y sumaremos 1 a cont, hasta que num sea 0
+        while (num != 0)
+        {
+            // Dividimos el valor actual de num por 10
+            num /= 10;
+
+            // Hacemos el incremento de la variable contador
+            contador++;
+        }
+
+        // Retornamos las cifras
+        return contador;
+    }
 }
