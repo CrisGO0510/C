@@ -9,7 +9,8 @@ void encriptapalabra();
 int main()
 {
     // mostrartodo();
-    encriptadesplaza();
+    // encriptadesplaza();
+    encriptapalabra();
 
     return 0;
 }
@@ -80,9 +81,9 @@ void encriptapalabra()
     int i = 0, j = 0, nbyte = 0;
     char valor = 0;
     FILE *desplazado = NULL;
-    desplazado = fopen("original.txt", "r");
+    desplazado = fopen("F_palabraclave.txt", "r");
     FILE *apc = NULL;
-    apc = fopen("F_palabraclave", "w");
+    apc = fopen("F_palabraclaveR.txt", "w");
     if (apc == NULL || desplazado == NULL)
     {
         printf("\n Al abrir algun archivo se presentaron problemas ");
@@ -98,14 +99,14 @@ void encriptapalabra()
             j = 0;
             for (i = 0; p_clave[i] != '\0' && esta == 0; i = i + 1)
             {
-                if (p_clave[i] == valor)
+                if (i == valor)
                 {
                     esta = 1;
                     j = i;
                 }
             }
             if (esta == 1)
-                fputc(j, apc);
+                fputc(p_clave[j], apc);
             else
                 fputc(valor, apc);
         }
