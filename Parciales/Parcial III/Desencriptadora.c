@@ -3,23 +3,24 @@
 #include <string.h>
 
 void mostrartodo();
-void encriptadesplaza();
 void encriptapalabra();
+void encriptadesplaza();
 
 int main()
 {
-    // mostrartodo();
+
     // encriptadesplaza();
     encriptapalabra();
+    mostrartodo();
 
     return 0;
 }
 
 void mostrartodo()
 {
-    char valor = 0;
+    unsigned char valor = 0;
     FILE *archivo = NULL;
-    archivo = fopen("original.txt", "r");
+    archivo = fopen("F_palabraclaveR.txt", "r");
     if (archivo == NULL)
     {
         printf("\nError en la apertura del archivo...\n");
@@ -33,55 +34,24 @@ void mostrartodo()
         while (!feof(archivo))
         {
             valor = fgetc(archivo);
-            printf("%c", valor);
+            printf("%i, ", valor);
         }
         printf("\n---------------------------------------------------------------------------------------------------------------\n");
-        printf("\n\n\n\tPresione enter para regresar al menu principal...\n");
-        getchar();
+        // printf("\n\n\n\tPresione enter para regresar al menu principal...\n");
+        // getchar();
     }
     fclose(archivo);
-}
-
-void encriptadesplaza()
-{
-    int vd = 0;
-    char valor = 0;
-    FILE *archivo = fopen("original.txt", "r");
-    FILE *desplazado = fopen("F_desplazado", "w");
-    if (archivo == NULL || desplazado == NULL)
-    {
-        printf("\n Al abrir original.txt o crear el archivo F_desplazado, se presentaron problemas ");
-        getchar();
-    }
-    else
-    {
-        printf("\nEntre valor a desplazar: ");
-        scanf("%i", &vd);
-        vd =- 256;
-
-        while (!feof(archivo))
-        {
-            valor = fgetc(archivo);
-            valor = valor + vd;
-            fputc(valor, desplazado);
-        }
-    }
-    fclose(archivo);
-    fclose(desplazado);
-    printf("\n---------------------------------------------------------------------------------------------------------------\n");
-    printf("\n\n\n\tPresione enter para regresar al menu principal...\n");
-    getchar();
-    return;
 }
 
 void encriptapalabra()
 {
-    char p_clave[256] = "MmUuRrCcIiEeLlAaGgOo";
+    // char p_clave[256] = "";
+    char p_clave[256] = "++++++++++z+y+sS+++cv+u+tTr+++qP k";
     int esta = 0;
     int i = 0, j = 0, nbyte = 0;
     char valor = 0;
     FILE *desplazado = NULL;
-    desplazado = fopen("F_palabraclave.txt", "r");
+    desplazado = fopen("F_desplazado", "r");
     FILE *apc = NULL;
     apc = fopen("F_palabraclaveR.txt", "w");
     if (apc == NULL || desplazado == NULL)
@@ -115,7 +85,35 @@ void encriptapalabra()
         fclose(desplazado);
         printf("\n---------------------------------------------------------------------------------------------------------------\n");
     }
-    printf("\n\n\n\tPresione enter para regresar al menu principal...\n");
-    getchar();
+    return;
+}
+
+void encriptadesplaza()
+{
+    int vd = 0;
+    char valor = 0;
+    FILE *archivo = fopen("confidencial08.txt", "r");
+    FILE *desplazado = fopen("F_desplazado", "w");
+    if (archivo == NULL || desplazado == NULL)
+    {
+        printf("\n Al abrir original.txt o crear el archivo F_desplazado, se presentaron problemas ");
+        getchar();
+    }
+    else
+    {
+        printf("\nEntre valor a desplazar: ");
+        scanf("%i", &vd);
+        vd = 256 - vd;
+
+        while (!feof(archivo))
+        {
+            valor = fgetc(archivo);
+            valor = valor + vd;
+            fputc(valor, desplazado);
+        }
+    }
+    fclose(archivo);
+    fclose(desplazado);
+    printf("\n---------------------------------------------------------------------------------------------------------------\n");
     return;
 }

@@ -2,150 +2,145 @@
 #include <stdlib.h>
 #include <time.h>
 
-int puntoSus(int[80][80][80], int, int, int);
+int PuntoSospechoso (int [80][80][80], int, int, int);
+int LineaSospechosa (int [80][80][80], int, int [80][80]);
+void LlenarVector (int [80][80], int, int, int);
+void ImprimirLinea (int [80][80], int, int);
 
-// ? Función que imprime la resonancia (Vector) en la hoja(Z)
-void imp(int vector[80][80][80], int z)
-{
-  
-   for (int x = 0; x < 80; x++)
-   {
-      // Imprimimos el valor de la fila(X)
-      printf("%i |", x % 10);
 
-      /* Sentencia for que me imprimirá uno a uno cada punto de la resonancia.
-      Se consideran sospechosos aquellos puntos para los que TODOS los puntos adyacentes
-      tengan un valor entre 20 y 40 (esto incluye los puntos pertenecientes al mismo plano,
-      al plano inferior y al plano superior). */
-      for (int y = 0; y < 80; y++)
-      {
-         // TODO: Condicional para determinar si imprime "█" ó " ".
-         if (puntoSus(vector, x, y, z))
-         {
-            // Imprimimos que el punto es sospechoso "█"
-            printf("█");
-         }
-         else
-         {
-            // Imprimimos que el punto NO es sospechoso " "
-            printf(" ");
-         }
+int main () {
+	srand (time (NULL)); //Semilla para generar los números aleatorios
+	int resonancia [80][80][80]; //Arreglo tridimensional
+	int lineas [80][80];
+	int x = 0; //x son las coordenadas en el eje x que serían a su vez las columnas
+	int y = 0; //y son las coordenadas en el eje y que serían a su vez las filas
+	int z = 0; //z son las coordenadas en el eje z que serían a su vez los planos
 
-      } //! FIN DEL FOR PARA IMRPIMIR PUNTOS EN Y
-        // Imprimimos el valor de la fila(X)
-      printf("| %i\n", x);
-   } //! FIN DEL FOR PARA IMPRIMIR LA LINEA X
+	for (z = 0; z < 80; z++){ //Inicializamos z en 0 hasta que llegue  100 e incrementa en 1
+		for (y = 0; y < 80; y++) { //Inicializamos z en 0 hasta que llegue  100 e incrementa en 1
+			for (x = 0; x < 80; x++) { //Inicializamos z en 0 hasta que llegue  100 e incrementa en 1
+				
+				int numran = rand () % 20 + 23; //Declaramos el número que al que le adignamos un número random entre 0 y 255
+				
+				resonancia [x][y][z] = numran; //En las coordenadas (x,y,z) de resonancia guardamos el número anterior
+				
+			}
+		}
+	}
 
+	for (y = 0; y < 80; y++){
+		for (x = 0; x < 80; x++){
+			lineas [x][y] = 0;
+		} 
+	}
+	LineaSospechosa (resonancia, 0, lineas);
 }
 
-int main()
-{
-    srand(time(NULL));          // Semilla para generar los números aleatorios
-   // Declaramos vector tridimencional (X, Y, Z), el cuál contendrá la resonancia, y sus valores seran [0,255]
-   // Declaramos vector tridimencional (X, Y, Z), el cuál contendrá la resonancia, y sus valores seran [0,255]
-   int resonancia[80][80][80];
 
-   // Declaramos vector tridimencional (X, Y, Z), el cuál contendrá las lineas sospechosas de la resonancia y se rellenará de 0 y 1, siendo 0 espacios " " y 1 las lineas a imprimir "█"
-   int vectorLineas[80][80][80];
-
-   // Sentencia for para rellenar el vector de numeros seudoaleatorios entre el 0 y el 255
-   // For para rellenar por cada iteración una "hoja" (Z).
-   for (int z = 0; z < 80; z++)
-   {
-      // Sentencia for para rellenar por cada iteración una fila (X).
-      for (int x = 0; x < 80; x++)
-      {
-         // Sentencia for para rellenar un punto por cada iteración (Y).
-         for (int y = 0; y < 80; y++)
-         {
-            // Llamamos la función "randomNum" para conseguir rellenar el valor de ese punto (X, Y, Z), y la siguiente iteración pasamos al siguiente punto a la derecha.
-            resonancia[x][y][z] = randomNum();
-
-            // Rellenamos el vector de lineas de 0's junto al otro vector para ahorrar recursos
-            vectorLineas[x][y][z] = 0;
-         }
-      }
-   }
-
-    imp(resonancia, 1);
+int PuntoSospechoso (int punto [80][80][80], int x, int y, int z) {
+	
+	int contador = 0;
+	int i = 0;
+	int j = 0;
+	int k = 0;
+	
+	if (x == 0 || x == 79)
+	return 0;
+	
+	if (y == 0 || y == 79)
+	return 0;
+	
+	if (z == 0 || z == 79)
+	return 0;
+	
+	for (k = -1; k <= 1; k++) {
+		for (j = -1; j <= 1; j++) {
+			for (i = -1; i <= 1; i++) {
+				
+				if (i == 0 && j == 0 && k == 0) {
+				}
+				
+				else {
+					if (punto [x - i][y - j][z - k] >= 20 && punto [x - i][y - j][z - k] <= 40)
+					contador++;
+				}
+			}
+		}
+	}
+	
+	if (contador == 26)
+	return 1;
+	
+	else
+	return 0;
+	
 }
 
-int randomNum()
-{
-    // Declaramos una variable que generará un número entre el 0 y el 255, para retornarlo luego
-    int numeroSeudo = rand() % 25 + 20;
-
-    return numeroSeudo;
+int LineaSospechosa (int plano [80][80][80], int z, int lineas [80][80]) {
+	
+	printf ("Ingrese el plano en el que desea ver las líneas sospechosas: ");
+	scanf ("%i", &z);
+	
+	int x = 0;
+	int y = 0;
+	int contpuntos = 0;
+	int contlineas = 0;
+	
+	for (y = 0; y < 80; y++) {
+		for (x = 0; x < 80; x++) {
+			
+			if (PuntoSospechoso (plano, x, y, z) == 1)
+			contpuntos++;
+			
+			else{
+				if (contpuntos >= 3) {
+					contlineas++;
+					LlenarVector (lineas, x - contpuntos, y, x);
+					contpuntos = 0;
+				}
+				
+				else {
+					contpuntos = 0;
+				}
+			}
+		}
+	}
+	
+	ImprimirLinea (lineas, 0, 0);
+	return contlineas;
 }
 
-int puntoSus(int vector[80][80][80], int x, int y, int z)
-{
-    /*
-        Determinaremos si un punto es sospechoso sí alrededor de él hay los puntos están entre 20 y 40, tanto en la capa superior, actual e inferior.
-        Es decir ni la hoja 0, ni la 99 se incluyen en este.
-    */
 
-    // Declaramos un variable que contará cuantos puntos adyacentes hay (deben haber 26)
-    int cont = 0;
+void LlenarVector (int lineas [80][80], int xinicial, int y, int x) {
+	
+	if (xinicial <= x) {
+		lineas [xinicial][y] = 1;
+		xinicial++;
+	}
+}
 
-    // Primero hacemos las discriminantes
-
-    // Ni en la primera, ni en la ultima capa puede haber un punto sospechoso
-    if (z == 0 || z == 99)
-    {
-        return 0;
-    }
-
-    // Ni el la primera, ni en la ultima fila pueden haber puntos sospechosos
-    if (x == 0 || x == 99)
-    {
-        return 0;
-    }
-
-    // Ni el la primera, ni en la ultima columna pueden haber puntos sospechosos
-    if (y == 0 || y == 99)
-    {
-        return 0;
-    }
-
-    // Ahora verificaremos si la coordenada esta rodeada de puntos entre 20 y 40
-
-    for (int k = -1; k <= 1; k++)
-    {
-        for (int j = -1; j <= 1; j++)
-        {
-            for (int i = -1; i <= 1; i++)
-            {
-                // vector[x - i][y - j][z - k] = 40;
-
-                // Condicional para saltarse el punto central
-                if (k == 0 && j == 0 && i == 0)
-                {
-                    // Es el punto centra, por lo tanto lo ignora, y pasa a la siguiente iteración
-                }
-                else
-                {
-                    if (vector[x - i][y - j][z - k] >= 20 && vector[x - i][y - j][z - k] <= 40)
-                    {
-                        cont++;
-                    }
-                }
-
-            } //! FIN DEL FOR PARA ANALIZAR LOS PUNTOS EN X
-
-        } //! FIN DEL FOR PARA CAMBIAR EL VALOR DE Y
-
-    } //! FIN DEL FOR PARA CAMBIAR EL VALOR DE Z
-
-    // Condición que retorna 1 si es un punto sospechoso y 0 si no lo es
-    if (cont == 26)
-    {
-        // Es sospechoso
-        return 1;
-    }
-    else
-    {
-        // No es sospechoso
-        return 0;
-    }
+void ImprimirLinea (int lineas [80][80], int x, int y) { //Esta funcion imprimirá el plano con las líneas sospechosas
+	
+	printf ("  0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789 \n");
+	printf (" +----------------------------------------------------------------------------------------------------+ \n  ");
+	
+	for (y = 0; y < 80; y++) { //Inicializamos y en 0 hasta que llegue  100 e incrementa en 1
+		if (y < 10) 
+		printf ("\n%i   |", y);
+	
+		else
+		printf ("\n%i  |", y);
+			
+			for (x = 0; x < 80; x++) { //Inicializamos x en 0 hasta que llegue  100 e incrementa en 1
+				
+				if (lineas [x][y] == 1){ //Se llama a la función PuntoSospechoso para verificar si lo es y en este caso se imprime un pixel negro 
+					printf ("%c", '*');
+				}
+				else{ //De lo contrario imprime un caracter de espacio
+					printf ("%c", ' ');
+				}
+			
+			}
+			printf ("|\n");
+	}
 }

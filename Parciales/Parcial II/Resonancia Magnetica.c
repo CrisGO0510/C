@@ -147,7 +147,7 @@ void rellenarLinea(int vector[100][100], int x, int y, int llegada)
 int randomNum()
 {
     // Declaramos una variable que generará un número entre el 0 y el 255, para retornarlo luego
-    int numeroSeudo = rand() % 256;
+    int numeroSeudo = rand() % 25 + 20;
 
     return numeroSeudo;
 }
