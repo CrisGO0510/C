@@ -1,7 +1,7 @@
 #include <stdio.h>
 int main (){
                     //   0123456789012345678901234567890123
-    char p_clave[256] = "++++++++++z+y+sS+++cv+u+tTr+++qP k";
+    char p_clave[256] = "0123456789z+y+sS+++cv+u+tTr+++qP k";
 
     printf("%c", p_clave[12]);
 

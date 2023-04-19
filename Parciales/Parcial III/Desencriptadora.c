@@ -18,7 +18,7 @@ int main()
 
 void mostrartodo()
 {
-    unsigned char valor = 0;
+    char valor = 0;
     FILE *archivo = NULL;
     archivo = fopen("F_palabraclaveR.txt", "r");
     if (archivo == NULL)
@@ -46,7 +46,7 @@ void mostrartodo()
 void encriptapalabra()
 {
     // char p_clave[256] = "";
-    char p_clave[256] = "++++++++++z+y+sS+++cv+u+tTr+++qP k";
+    char p_clave[256] = "+++++++++9z+y+sS+++cv+u+tTr+++qP k";
     int esta = 0;
     int i = 0, j = 0, nbyte = 0;
     char valor = 0;
