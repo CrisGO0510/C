@@ -53,7 +53,7 @@ void encriptapalabra()
     FILE *desplazado = NULL;
     desplazado = fopen("F_desplazado", "r");
     FILE *apc = NULL;
-    apc = fopen("F_palabraclaveR.txt", "w");
+    apc = fopen("F_palabraclaveR", "w");
     if (apc == NULL || desplazado == NULL)
     {
         printf("\n Al abrir algun archivo se presentaron problemas ");

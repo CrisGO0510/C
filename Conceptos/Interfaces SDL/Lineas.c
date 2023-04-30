@@ -6,21 +6,16 @@ int main()
 
     // Inicializamos SDL2 con todos los subsistemas y en caso de generar error, obtener el error y parar el programa
 
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
+    if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
         printf("Error initializing SDL2: %s\n", SDL_GetError());
         return 1;
     }
 
-    /* Creamos una ventana, el tipado es SDL_Window*, y para crearlo usamos la función SSDL_CreateWindow() con los siguientes prototipos:
+    // Declaramos una variable para poder manejar eventos (en este caso cerrar la ventana)
+    SDL_Event event;
 
-    title: el titulo que le queremos dar a la ventana
-    x: Las Coordenadas en X donde queremos que se genere la ventana
-    y: Las Coordenadas en y donde queremos que se genere la ventana
-    w: El ancho de la ventana
-    h: La altura de la ventana
-    flags: Valores Uint32 que especifican las opciones de la ventana, como si debe ser redimensionable, debe estar en pantalla completa, si tiene un borde, etc.
-    */
+    // Creamos una ventana
 
     SDL_Window *window = SDL_CreateWindow("Mi ventana", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN);
 
@@ -32,7 +27,7 @@ int main()
         return 1;
     }
 
-    // Declaramos el renderizados que usaremos para poder dibujar graficos en la ventana (los parametros suelen ser siempre los mismos)
+    // Declaramos el renderizados que usaremos para poder dibujar graficos en la ventana
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
     // Verificamos si el render logró crearse de manera exitosa, sino imprime el error y retorna 1
@@ -44,20 +39,33 @@ int main()
         return 1;
     }
 
-    // Declaramos un rectangulo en las coordenadas 100x100 del tamaño de 50x50
-    SDL_Rect rect = {100, 100, 50, 50};
+    // Acá estamos creando un tipo de dato basado en un struct que se va a llamar SDL_Line
+    typedef struct
+    {
+        SDL_Point start;
+        SDL_Point end;
+        SDL_Color color;
+    } SDL_Line;
 
-    // Usamos SDL_SetRenderDrawColor para establecer el color utilizado para renderizar los elementos gráficos.
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    SDL_Line linea = {{100, 100}, {200, 200}, {255, 0, 0, 255}};
 
-    // Dibujar el rectángulo en el render
-    SDL_RenderFillRect(renderer, &rect);
+    // Le damos un color a la linea
+    SDL_SetRenderDrawColor(renderer, linea.color.r, linea.color.g, linea.color.b, linea.color.a);
 
-    // Actualizar el render para mostrar el rectangulo
+    // Dibujamos la linea
+    SDL_RenderDrawLine(renderer, linea.start.x, linea.start.y, linea.end.x, linea.end.y);
+
+    // Actualizar el render para mostrar la linea
     SDL_RenderPresent(renderer);
 
-    // Esperar 3 segundos antes de salir
-    SDL_Delay(3000);
+    // Esperar a que el usuario cierre la ventana
+    while (1)
+    {
+        if (SDL_PollEvent(&event) && event.type == SDL_QUIT)
+        {
+            break;
+        }
+    }
 
     // Es importante siempre liberar recursos y cerrar SDL
     SDL_DestroyRenderer(renderer);

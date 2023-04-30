@@ -12,6 +12,9 @@ int main()
         return 1;
     }
 
+    // Declaramos una variable para poder manejar eventos (en este caso cerrar la ventana)
+    SDL_Event event;
+
     /* Creamos una ventana, el tipado es SDL_Window*, y para crearlo usamos la función SSDL_CreateWindow() con los siguientes prototipos:
 
     title: el titulo que le queremos dar a la ventana
@@ -47,17 +50,31 @@ int main()
     // Declaramos un rectangulo en las coordenadas 100x100 del tamaño de 50x50
     SDL_Rect rect = {100, 100, 50, 50};
 
+    // Declaramos un punto en las coordenadas 200x200
+    SDL_Point punto = {200, 200};
+
     // Usamos SDL_SetRenderDrawColor para establecer el color utilizado para renderizar los elementos gráficos.
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
 
     // Dibujar el rectángulo en el render
     SDL_RenderFillRect(renderer, &rect);
 
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+
+    // Dibujamos el punto en el render
+    SDL_RenderDrawPoint(renderer, punto.x, punto.y);
+
     // Actualizar el render para mostrar el rectangulo
     SDL_RenderPresent(renderer);
 
-    // Esperar 3 segundos antes de salir
-    SDL_Delay(3000);
+    // Esperar a que el usuario cierre la ventana
+    while (1)
+    {
+        if (SDL_PollEvent(&event) && event.type == SDL_QUIT)
+        {
+            break;
+        }
+    }
 
     // Es importante siempre liberar recursos y cerrar SDL
     SDL_DestroyRenderer(renderer);
