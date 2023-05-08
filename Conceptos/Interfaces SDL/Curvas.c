@@ -8,12 +8,15 @@ int main()
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     SDL_Event event;
 
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // Color blanco
-    SDL_RenderClear(renderer);                            // Limpiamos la ventana
+    // Color blanco
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+    // Limpiamos la ventana
+    SDL_RenderClear(renderer);
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255); // Color negro
 
-        SDL_Point puntos[640]; // Array de puntos para guardar la curva
+    SDL_Point puntos[640]; // Array de puntos para guardar la curva
 
     // Generamos los puntos de la curva senoidal
     for (int x = 0; x < 640; x++)
