@@ -131,7 +131,7 @@ void imp(char mon[15])
         eliminarCaracter(mon, ')');
 
         // Copiamos el string "mon" en la variable "coef", hasta que llegue a la X
-        memcpy(coef, mon, puesto);
+        mon[0] == 'X' ? printf("hola"): memcpy(coef, mon, puesto);
 
         // Quitamos el + de coeficiente ya que el '+' al principio de un numero no se pone
         eliminarCaracter(coef, '+');

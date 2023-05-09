@@ -21,7 +21,7 @@
 
 char *setPalabra();
 int randomNum();
-void ingresaLetra(char[], char[], int *, char[]);
+void ingresaLetra(char[], char[], int *, char[8]);
 void impAhorcado(int, char[], char[]);
 
 int main()
@@ -65,7 +65,7 @@ int main()
      * editar directamente su valor y no de manera "local" en la función.
      */
 
-    ingresaLetra(palabra, &palabraOculta, &intentos, letrasUsadas);
+    ingresaLetra(palabra, palabraOculta, &intentos, letrasUsadas);
 
     return 0;
 }
@@ -77,7 +77,7 @@ void ingresaLetra(char palabra[], char palabraOculta[], int *inte, char letrasU[
     impAhorcado(*inte, palabraOculta, letrasU);
 
     //* Variable que contendrá la letra ingresada por el usuario
-    char letra = "";
+    char letra;
 
     //* Le pedimos al usuario que ingrese un caracter
     printf("\nIngrese una letra: ");
@@ -97,7 +97,7 @@ void ingresaLetra(char palabra[], char palabraOculta[], int *inte, char letrasU[
          * el guión por la letra ingresada.
          */
 
-        for (int i = 0; i < strlen(palabra); i++)
+        for (size_t i = 0; i < strlen(palabra); i++)
         {
             /*
                 * Condicional para verificar si el espacio designado a "palabra" es igual

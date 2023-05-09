@@ -3,7 +3,8 @@
 
 // Prototipos a usar
 
-void generarPlano(int, int, SDL_Renderer *);
+void generarPlano(int, int, SDL_Renderer *, int);
+void generarFuncion(char[], SDL_Renderer *, int);
 
 /* Acá estamos creando un tipo de dato basado en un struct que se va a llamar SDL_Line
  *@param start {{x1,y1}, {x2,y2}, {R,G,B,A}}
@@ -29,7 +30,7 @@ int main()
     SDL_Event event;
 
     // Creamos una ventana
-    SDL_Window *window = SDL_CreateWindow("Plano Cartesiano", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN);
+    SDL_Window *window = SDL_CreateWindow("Plano Cartesiano", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 640, SDL_WINDOW_SHOWN);
 
     // Declaramos el renderizados que usaremos para poder dibujar graficos en la ventana
     SDL_Renderer *plano = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -46,11 +47,14 @@ int main()
     // Declaramos 2 variables que contendrán el valor de la ventana
     int window_width, window_height;
 
+    // Variable para saber cuantas divisiónes a de tener (DEBE SER PAR)
+    int divisiones = 8;
+
     // Función que nos asigna el valor del tamaño de la ventana
     SDL_GetWindowSize(window, &window_width, &window_height);
 
     // Llamamos a la función para generar el plano
-    generarPlano(window_height, window_width, plano);
+    generarPlano(window_height, window_width, plano, divisiones);
 
     //! Esperar a que el usuario cierre la ventana
     while (1)
@@ -68,10 +72,9 @@ int main()
     return 0;
 }
 
-void generarPlano(int h, int w, SDL_Renderer *render)
+void generarPlano(int h, int w, SDL_Renderer *render, int divisiones)
 {
-    // Variable para saber cuantas divisiónes a de tener (DEBE SER PAR)
-    int divisiones = 8;
+    // Declaramos un vector de lineas que dividirán el plano
     SDL_Line divisoresVerticales[divisiones];
     SDL_Line divisoresHorizontales[divisiones];
     float x = 0;
@@ -120,5 +123,6 @@ void generarPlano(int h, int w, SDL_Renderer *render)
 
     // Actualizar el render para mostrar las lineas
     SDL_RenderPresent(render);
-
 }
+
+void generarFuncion(char funcion[], SDL_Renderer *render, int divisiones) {}
