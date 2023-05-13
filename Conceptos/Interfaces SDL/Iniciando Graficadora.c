@@ -4,10 +4,9 @@
 // Prototipos a usar
 
 void generarPlano(int, int, SDL_Renderer *, int);
-void generarFuncion(char[], SDL_Renderer *, int);
 
 /* Acá estamos creando un tipo de dato basado en un struct que se va a llamar SDL_Line
- *@param start {{x1,y1}, {x2,y2}, {R,G,B,A}}
+ *@param start {{x1,y1}, {x2,y2}, {R,G,B,A}}s
  *@param end {{x1,y1}, {x2,y2}, {R,G,B,A}}
  */
 typedef struct
@@ -57,11 +56,12 @@ int main()
     generarPlano(window_height, window_width, plano, divisiones);
 
     //! Esperar a que el usuario cierre la ventana
-    while (1)
+    int i = 1;
+    while (i)
     {
         if (SDL_PollEvent(&event) && event.type == SDL_QUIT)
         {
-            break;
+            i = 0;
         }
     }
 
@@ -125,4 +125,10 @@ void generarPlano(int h, int w, SDL_Renderer *render, int divisiones)
     SDL_RenderPresent(render);
 }
 
-void generarFuncion(char funcion[], SDL_Renderer *render, int divisiones) {}
+void generarFuncion(char funcion[], int divisiones) {
+
+
+/*---------------------Seccionamos el función---------------------*/
+/*----------------------Dibujamos la función----------------------*/
+
+}

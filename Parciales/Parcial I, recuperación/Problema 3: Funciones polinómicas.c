@@ -130,14 +130,25 @@ void imp(char mon[15])
         eliminarCaracter(mon, '(');
         eliminarCaracter(mon, ')');
 
-        // Copiamos el string "mon" en la variable "coef", hasta que llegue a la X
-        mon[0] == 'X' ? printf("hola"): memcpy(coef, mon, puesto);
+        if (mon[0] == 'X' || ((mon[0] == '+') && (mon[1] == 'X')))
+        {
+            // En caso de que el valor de mon[0] == 'X', significa que el coeficiente es 1
+            coef[0] = '1';
+
+            // Agregar el caracter nulo al final de coef
+            coef[1] = '\0';
+        }
+        else
+        {
+            // Copiamos el string "mon" en la variable "coef", hasta que llegue a la X
+            memcpy(coef, mon, puesto);
+
+            // Agregar el caracter nulo al final de coef
+            coef[puesto] = '\0';
+        }
 
         // Quitamos el + de coeficiente ya que el '+' al principio de un numero no se pone
         eliminarCaracter(coef, '+');
-
-        // Agregar el caracter nulo al final de coef
-        coef[puesto] = '\0';
 
         // Le asignaremos 14 - la cantidad de caracteres en coef, como espacios a la variable espacios
         for (size_t i = 0; i < 14 - strlen(coef); i++)
