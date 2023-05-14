@@ -219,26 +219,40 @@ void generarFuncion(char funcion[15], int divisiones, int w, int h, SDL_Renderer
         printf("coef = %s\n", funcion);
     }
 
-    /*----------------------Dibujamos la funcións----------------------*/
+    /*-----------------------Dibujamos la función-----------------------*/
 
-    // Le damos un color a las lineas
-    SDL_SetRenderDrawColor(render, 63, 127, 191, 255);
+    SDL_SetRenderDrawColor(render, 0, 0, 255, 255); // Color negro
 
-    // SDL_Line temporal = {{0, 0}, {w / divisiones, h / divisiones}};
-    // SDL_RenderDrawLineF(render, temporal.start.x, temporal.start.y, temporal.end.x, temporal.end.y);
+    SDL_Point puntos[divisiones]; // Array de puntos para guardar la curva
+    int x = w / 2;
+    int y = h / 2;
 
-    // Array de puntos para guardar la función
-    SDL_Point puntos[w]; 
-
-    // Generamos los puntos de la función
-    for (int x = 0; x < w; x++)
+    // Generamos los del eje y-
+    for (int i = 0; i <= divisiones / 2; i++)
     {
-        int y = x;
-        puntos[x] = (SDL_Point){x, y};
+        printf("%i %i %i\n", w - x, y, i);
+
+        puntos[i] = (SDL_Point){w - x, y - (+ 40)};
+        x += w / divisiones;
+        y += 4 * (h / divisiones);
+    } 
+
+    SDL_RenderDrawLines(render, puntos, divisiones / 2 + 1);
+
+    x = w / 2;
+    y = h / 2;
+
+    // Generamos los del eje y+
+    for (int i = 0; i <= divisiones / 2; i++)
+    {
+        printf("%i %i %i\n", x, y, i);
+
+        puntos[i] = (SDL_Point){x, h - y - (+ 40)};
+        x += w / divisiones;
+        y += 4 * (h / divisiones);
     }
 
-    // Dibujamos la función
-    SDL_RenderDrawLines(render, puntos, w);
+    SDL_RenderDrawLines(render, puntos, divisiones / 2 + 1);
 
     SDL_RenderPresent(render);
 }

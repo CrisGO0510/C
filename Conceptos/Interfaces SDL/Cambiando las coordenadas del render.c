@@ -11,7 +11,7 @@ int main()
     }
 
     // Crear una ventana
-    SDL_Window *window = SDL_CreateWindow("Viewport Example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN);
+    SDL_Window *window = SDL_CreateWindow("Viewport Example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 640, SDL_WINDOW_SHOWN);
     if (window == NULL)
     {
         printf("Error creating window: %s\n", SDL_GetError());
@@ -40,11 +40,11 @@ int main()
     SDL_RenderSetViewport(renderer, &viewport);
 
     // Dibujar un rectángulo en el viewport
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
     // SDL_RenderPresent(renderer);
 
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
     SDL_RenderDrawLine(renderer, 0, 0, 100, 100);
     SDL_RenderPresent(renderer);
 
