@@ -1,13 +1,16 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 // Prototipos a usar
 
 void generarPlano(int, int, SDL_Renderer *, int);
+void eliminarCaracter(char[15], char);
+void generarFuncion(char[15], int, int, int, SDL_Renderer *);
 
-/* Acá estamos creando un tipo de dato basado en un struct que se va a llamar SDL_Line
- *@param start {{x1,y1}, {x2,y2}, {R,G,B,A}}s
- *@param end {{x1,y1}, {x2,y2}, {R,G,B,A}}
+/* Acá estamos creando un tipo de dato basado en un struct que se va a contener 2 puntos, de inicio y de llegada
+ *@param start {{x1,y1}, {x2,y2}}
+ *@param end {{x1,y1}, {x2,y2}}
  */
 typedef struct
 {
@@ -47,13 +50,18 @@ int main()
     int window_width, window_height;
 
     // Variable para saber cuantas divisiónes a de tener (DEBE SER PAR)
-    int divisiones = 8;
+    int divisiones = 16;
 
     // Función que nos asigna el valor del tamaño de la ventana
     SDL_GetWindowSize(window, &window_width, &window_height);
 
     // Llamamos a la función para generar el plano
     generarPlano(window_height, window_width, plano, divisiones);
+    // SDL_RenderPresent(plano);
+
+    // TODO: Función que dividirá el monomio
+    char funcion[15] = "3X";
+    generarFuncion(funcion, divisiones, window_width, window_height, plano);
 
     //! Esperar a que el usuario cierre la ventana
     int i = 1;
@@ -72,6 +80,32 @@ int main()
     return 0;
 }
 
+// ? Función para eliminar los caracteres "caracter" del string "str" recibido como párametro
+void eliminarCaracter(char str[15], char caracter)
+{
+
+    // Declaramos variables para controlar las iteraciones del ciclo para eliminar los párentesis
+    size_t i = 0;
+    size_t j = 0;
+
+    // Se recorre la cadena y se reemplaza el caracter a remover con un caracter nulo
+    for (i = 0, j = 0; i < strlen(str); i++)
+    {
+        // Determinamos si la posición str[i] es diferente al caracter enviado
+        if (str[i] != caracter)
+        {
+            // Si la condición es verdadera, entonces se guardará en la posición de j y luego hacemos un incremento a la variable j
+            str[j++] = str[i];
+        }
+
+        /* En caso de que la condición sea falsa no guarda el carácter y hace el incremento de la variable i, para seguir con la siguiente posición y que la variable j, estando en la posición anterior remplace ese espacio*/
+    }
+
+    // Se agrega un caracter nulo al final de la cadena
+    str[j] = '\0';
+}
+
+// ? Función que genera el plano con sus renderizaciones
 void generarPlano(int h, int w, SDL_Renderer *render, int divisiones)
 {
     // Declaramos un vector de lineas que dividirán el plano
@@ -87,7 +121,6 @@ void generarPlano(int h, int w, SDL_Renderer *render, int divisiones)
         divisoresHorizontales[i] = (SDL_Line){{0, y}, {w, y}};
         x += (float)w / divisiones;
         y += (float)h / divisiones;
-        printf("%f\n", x);
     }
 
     // Color blanco al fondo del plano
@@ -121,14 +154,91 @@ void generarPlano(int h, int w, SDL_Renderer *render, int divisiones)
 
     SDL_RenderDrawLine(render, lineaX.start.x, lineaX.start.y, lineaX.end.x, lineaX.end.y);
 
-    // Actualizar el render para mostrar las lineas
-    SDL_RenderPresent(render);
+    // // Actualizar el render para mostrar las lineas
+    // SDL_RenderPresent(render);
 }
 
-void generarFuncion(char funcion[], int divisiones) {
+// ? Función que secciona y renderiza la función
+void generarFuncion(char funcion[15], int divisiones, int w, int h, SDL_Renderer *render)
+{
 
+    /*---------------------Seccionamos el función---------------------*/
 
-/*---------------------Seccionamos el función---------------------*/
-/*----------------------Dibujamos la función----------------------*/
+    // Declaramos la variable que guardará el coeficiente
+    char coef[15] = "";
 
+    // Declaramos variable que alojará la posición en donde esta la X
+    int puesto = strchr(funcion, 'X') - funcion;
+
+    // Verificamos si el funcionomio tiene una variable (X)
+    if (strchr(funcion, 'X') != NULL)
+    {
+        // Quitamos los parentesis que haya después de la X
+        eliminarCaracter(funcion, '(');
+        eliminarCaracter(funcion, ')');
+
+        if (funcion[0] == 'X' || ((funcion[0] == '+') && (funcion[1] == 'X')))
+        {
+            // En caso de que el valor de funcion[0] == 'X', significa que el coeficiente es 1
+            coef[0] = '1';
+
+            // Agregar el caracter nulo al final de coef
+            coef[1] = '\0';
+        }
+        else
+        {
+            // Copiamos el string "funcion" en la variable "coef", hasta que llegue a la X
+            memcpy(coef, funcion, puesto);
+
+            // Agregar el caracter nulo al final de coef
+            coef[puesto] = '\0';
+        }
+
+        // Quitamos el + de coeficiente ya que el '+' al principio de un numero no se pone
+        eliminarCaracter(coef, '+');
+
+        // Condición para ingresarle 1 al exponente, debido a que se intuye que si no hay nada, hay un "1"
+        if (funcion[puesto + 1] == '\0')
+        {
+            // Le asignamos el valor a 1 al valor después de la X (puesto + 1)
+            funcion[puesto + 1] = '1';
+
+            // Le asignamos el null para determinar que se acabó el string
+            funcion[puesto + 2] = '\0';
+        }
+
+        // Imprimimos el coeficiente y el exponente
+        printf("coef : %s, exponente: %s\n", coef, &funcion[puesto + 1]);
+    }
+    else
+    {
+        // Quitamos el + de coeficiente ya que el '+' al principio de un numero no se pone
+        eliminarCaracter(funcion, '+');
+
+        // Si llega a ser falsa la condición, determinamos que el exponente es 0 y lo imprimimos
+        printf("coef = %s\n", funcion);
+    }
+
+    /*----------------------Dibujamos la funcións----------------------*/
+
+    // Le damos un color a las lineas
+    SDL_SetRenderDrawColor(render, 63, 127, 191, 255);
+
+    // SDL_Line temporal = {{0, 0}, {w / divisiones, h / divisiones}};
+    // SDL_RenderDrawLineF(render, temporal.start.x, temporal.start.y, temporal.end.x, temporal.end.y);
+
+    // Array de puntos para guardar la función
+    SDL_Point puntos[w]; 
+
+    // Generamos los puntos de la función
+    for (int x = 0; x < w; x++)
+    {
+        int y = x;
+        puntos[x] = (SDL_Point){x, y};
+    }
+
+    // Dibujamos la función
+    SDL_RenderDrawLines(render, puntos, w);
+
+    SDL_RenderPresent(render);
 }
