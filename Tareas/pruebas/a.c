@@ -1,9 +1,11 @@
 #include <stdio.h>
-int main (){
-                    //   0123456789012345678901234567890123
-    // char p_clave[256] = "0123456789z+y+sS+++cv+u+tTr+++qP k";
+#include <stdlib.h>
 
-    printf("%c, %c, %c, %c, %c, %c, %c, %c, %c, %c, %c, %c, %c, %c", 114, 41, 43, 122, 43, 122, 43, 122, -1, 57, 57, -1, -1);
+int main()
+{
+
+    char hola[] = "-123";
+    printf("%i --- %s", atoi(hola), hola);
 
     return 0;
 }

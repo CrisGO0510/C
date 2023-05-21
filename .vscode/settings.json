@@ -6,6 +6,7 @@
         "ratio": "c",
         "string.h": "c",
         "sstream": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "Graficadora.C": "cpp"
     }
 }
