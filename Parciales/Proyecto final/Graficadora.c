@@ -42,13 +42,30 @@ int main()
     int window_width, window_height;
 
     // Declaramos 2 variables para saber el intervalo de donde el usuario quiere empezar y terminar el intervalo de la función
-    int inicio = 0, fin = 0;
+    int inicio = -10, fin = 10;
 
     // Variable que contendrá la función ingresada por el usuario
     char funcion[50] = "2X+1";
 
     // Declaramos variable que será usada para guardar un monomio de manera temporal
-    char mon[15] = "+2";
+    char mon[15] = "";
+
+    // Variable que nos dirá donde empieza y donde termina el
+    int intervalo = (SDL_abs(inicio) + SDL_abs(fin));
+
+    // Declaramos SDL_Point vector para guardar los puntos que necesitaremos
+    SDL_Point puntos[intervalo];
+
+    // Definimos 4 variables q representaran los cuadrantes, si son != 0 significa que se debe usar ese cuadrante
+    int cuadrante1 = 0;
+    int cuadrante2 = 0;
+    int cuadrante3 = 0;
+    int cuadrante4 = 0;
+
+    // Definimos 2 variables para encontrar el punto (0,0)
+
+    int h = 0;
+    int w = 0;
 
     /* ------------------------------------------INICIALIZAMOS SDL2------------------------------------------ */
 
@@ -80,12 +97,124 @@ int main()
     // Función que nos asigna el valor del tamaño de la ventana
     SDL_GetWindowSize(window, &window_width, &window_height);
 
-    // TODO: Función que dividirá el monomio
+    // Color blanco al fondo del plano
+    SDL_SetRenderDrawColor(plano, 255, 255, 255, 255);
 
-    printf("hola: %i\n", dividir(funcion, mon, 1));
-    // printf("hola: %i\n", valorY(mon, 0));
+    // Limpiamos la ventana
+    SDL_RenderClear(plano);
 
-    //! Esperar a que el usuario cierre la ventana
+    /* ---------------------------------------- GENERACIÓN DE PUNTOS ---------------------------------------- */
+
+    // Ciclo iterativo el cuál rellenará un SDL_point vector
+
+    for (int i = 0; i <= intervalo; i++)
+    {
+        //  Guardaremos en un vector los valores q retorne la función
+        puntos[i] = (SDL_Point){inicio + i, dividir(funcion, mon, inicio + i)};
+
+        // Al momento de declarar los puntos, verificamos que cuadrante se necesita
+        if (puntos[i].x > 0 && puntos[i].y > 0)
+            cuadrante1 = 1;
+        if (puntos[i].x < 0 && puntos[i].y > 0)
+            cuadrante2 = 1;
+        if (puntos[i].x < 0 && puntos[i].y < 0)
+            cuadrante3 = 1;
+        if (puntos[i].x > 0 && puntos[i].y < 0)
+            cuadrante4 = 1;
+    }
+
+    // // TODO: FUNCION TEMPORAL
+
+    // for (int i = 0; i <= intervalo; i++)
+    // {
+    //     printf("x: %i, y: %i\n", puntos[i].x, puntos[i].y);
+    // }
+
+    /* --------------------------------------- SECCIONAMOS CUADRANTES --------------------------------------- */
+
+    printf("Cuadrante 1: %i\nCuadrante 2: %i\nCuadrante 3: %i\nCuadrante 4: %i\n", cuadrante1, cuadrante2, cuadrante3, cuadrante4);
+
+    // Primera condicional evaluará si toma 2 cuadrantes en diagonal, de ser así toma todo el plano
+    if ((cuadrante1 == 1 && cuadrante3 == 1) || (cuadrante2 == 1 && cuadrante4 == 1))
+    {
+        cuadrante1 = cuadrante2 = cuadrante3 = cuadrante4 = 1;
+    }
+    
+    // Cambiamos el color a un tono negro
+    SDL_SetRenderDrawColor(plano, 0, 0, 0, 255);
+
+    // Definimos el 0,0 en el centro de la pantalla, ya que necesitamos usar los 4 cuadrantes
+
+    if (cuadrante1 == 1 && cuadrante2 == 1 && cuadrante3 == 1 && cuadrante4 == 1)
+    {
+        // Dibujamos las lineas del plano
+        SDL_RenderDrawLine(plano, 0, window_height / 2, window_width, window_height / 2);
+
+        SDL_RenderDrawLine(plano, window_width / 2, 0, window_width / 2, window_height);
+
+        // Declaramos la variable de donde va el 0,0
+        h = window_height / 2;
+        w = window_width / 2;
+    }
+    else if (cuadrante1 == 1 && cuadrante2 == 1)
+    {
+        // Dibujamos las lineas del plano
+        SDL_RenderDrawLine(plano, 0, 5 * window_height / 6, window_width, 5 * window_height / 6);
+
+        SDL_RenderDrawLine(plano, window_width / 2, 0, window_width / 2, window_height);
+
+        // Declaramos la variable de donde va el 0,0
+        h = 5 * window_height / 6;
+        w = window_width / 2;
+    }
+    else if (cuadrante3 == 1 && cuadrante4 == 1)
+    {
+        // Dibujamos las lineas del plano
+        SDL_RenderDrawLine(plano, 0, window_height / 6, window_width, window_height / 6);
+
+        SDL_RenderDrawLine(plano, window_width / 2, 0, window_width / 2, window_height);
+
+        // Declaramos la variable de donde va el 0,0
+        h = window_height / 6;
+        w = window_width / 2;
+    }
+    else if (cuadrante2 == 1 && cuadrante3 == 1)
+    {
+        // Dibujamos las lineas del plano
+        SDL_RenderDrawLine(plano, 0, window_height / 2, window_width, window_height / 2);
+
+        SDL_RenderDrawLine(plano, 5 * window_width / 6, 0, 5 * window_width / 6, window_height);
+
+        // Declaramos la variable de donde va el 0,0
+        h = window_height / 2;
+        w = 5 * window_width / 6;
+    }
+    else if (cuadrante1 == 1 && cuadrante4 == 1)
+    {
+        // Dibujamos las lineas del plano
+        SDL_RenderDrawLine(plano, 0, window_height / 2, window_width, window_height / 2);
+
+        SDL_RenderDrawLine(plano, window_width / 6, 0, window_width / 6, window_height);
+
+        // Declaramos la variable de donde va el 0,0
+        h = window_height / 2;
+        w = window_width / 6;
+    }
+
+    SDL_SetRenderDrawColor(plano, 0, 0, 255, 255);
+
+    for (int j = -1; j < 1; j++)
+    {
+        for (int i = -1; i < 1; i++)
+        {
+            SDL_RenderDrawPoint(plano, w + i, h + j);
+        }
+    }
+
+    // TODO: REMOVER RENDERPRESENT LUEGO
+    SDL_RenderPresent(plano);
+
+    /* ----------------------------- Esperar a que el usuario cierre la ventana ----------------------------- */
     int i = 1;
     while (i)
     {
@@ -104,7 +233,7 @@ int main()
 
 //? Función que divide el polinomio (poli), y lo pega en "mon" como si se tratase de un monomio
 
-int dividir(char poli[50], char mon[15], int x)
+int dividir(char funcion[50], char mon[15], int x)
 {
     // Declaramos variable para recorrer cada uno de los caracteres en el string "poli" para dividirlo al monomio "mon"
     // Lo declaramos 1 para que ignore el simbolo del inicio y solo mire los siguientes simbolos (+ / -)
@@ -115,6 +244,10 @@ int dividir(char poli[50], char mon[15], int x)
 
     // Declaramos variable que guardará el fin del monomio
     int fin = 0;
+
+    // Declaramos una variable que contendrá de manera temporal la función de polinomio y así no edite el original
+    char poli[50];
+    strcpy(poli, funcion);
 
     // Bucle para recorrer el string y poder copiar en otra variable el primer monomio encontrado
     while (fin == 0)
@@ -228,8 +361,6 @@ int valorY(char mon[15], int x)
         // Si llega a ser falsa la condición, determinamos que el exponente es 0 y lo imprimimos
         return atoi(mon);
     }
-
-    // printf("valor actual: %i\n", atoi(coef) * SDL_pow(x, atoi(&mon[puesto + 1])));
 
     // Retornamos la multiplicación del coeficiente por x elevado a lo que este a la derecha de la x
     return atoi(coef) * SDL_pow(x, atoi(&mon[puesto + 1]));
