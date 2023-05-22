@@ -16,8 +16,10 @@
  */
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /* Acá estamos creando un tipo de dato basado en un struct que se va a contener 2 puntos, de inicio y de llegada
  *@param start {{x1,y1}, {x2,y2}}
@@ -32,6 +34,8 @@ typedef struct
 // Prototipos a usar
 int dividir(char[50], char[15], int);
 int valorY(char[15], int);
+int drawFuntion(SDL_Renderer *, int, int, int, SDL_Point[640], int, int, int, int);
+void numbers(SDL_Renderer *, TTF_Font *, int, int, int);
 
 int main()
 {
@@ -42,10 +46,13 @@ int main()
     int window_width, window_height;
 
     // Declaramos 2 variables para saber el intervalo de donde el usuario quiere empezar y terminar el intervalo de la función
-    int inicio = -10, fin = 10;
+    int inicio = -1, fin = 10;
+
+    // Declaramos variable que contendrá a cuantos pasos se moverá
+    int pasos = 1;
 
     // Variable que contendrá la función ingresada por el usuario
-    char funcion[50] = "2X+1";
+    char funcion[50] = "2X2-1";
 
     // Declaramos variable que será usada para guardar un monomio de manera temporal
     char mon[15] = "";
@@ -55,6 +62,9 @@ int main()
 
     // Declaramos SDL_Point vector para guardar los puntos que necesitaremos
     SDL_Point puntos[intervalo];
+
+    // Declaramos una tipado de fuente que rellenaremos luego
+    TTF_Font *font = NULL;
 
     // Definimos 4 variables q representaran los cuadrantes, si son != 0 significa que se debe usar ese cuadrante
     int cuadrante1 = 0;
@@ -68,6 +78,9 @@ int main()
     int w = 0;
 
     /* ------------------------------------------INICIALIZAMOS SDL2------------------------------------------ */
+
+    // Inicializamos TTF
+    TTF_Init();
 
     // Inicializamos SDL2
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -123,23 +136,20 @@ int main()
             cuadrante4 = 1;
     }
 
-    // // TODO: FUNCION TEMPORAL
-
-    // for (int i = 0; i <= intervalo; i++)
-    // {
-    //     printf("x: %i, y: %i\n", puntos[i].x, puntos[i].y);
-    // }
-
     /* --------------------------------------- SECCIONAMOS CUADRANTES --------------------------------------- */
-
-    printf("Cuadrante 1: %i\nCuadrante 2: %i\nCuadrante 3: %i\nCuadrante 4: %i\n", cuadrante1, cuadrante2, cuadrante3, cuadrante4);
 
     // Primera condicional evaluará si toma 2 cuadrantes en diagonal, de ser así toma todo el plano
     if ((cuadrante1 == 1 && cuadrante3 == 1) || (cuadrante2 == 1 && cuadrante4 == 1))
     {
         cuadrante1 = cuadrante2 = cuadrante3 = cuadrante4 = 1;
     }
-    
+
+    // // TODO: BORRAR LUEGO
+    // cuadrante1 = 1;
+    // cuadrante2 = 1;
+    // cuadrante3 = 1;
+    // cuadrante4 = 1;
+
     // Cambiamos el color a un tono negro
     SDL_SetRenderDrawColor(plano, 0, 0, 0, 255);
 
@@ -200,15 +210,64 @@ int main()
         h = window_height / 2;
         w = window_width / 6;
     }
-
-    SDL_SetRenderDrawColor(plano, 0, 0, 255, 255);
-
-    for (int j = -1; j < 1; j++)
+    else if (cuadrante1 == 1)
     {
-        for (int i = -1; i < 1; i++)
-        {
-            SDL_RenderDrawPoint(plano, w + i, h + j);
-        }
+        // Dibujamos las lineas del plano
+        SDL_RenderDrawLine(plano, 0, 5 * window_height / 6, window_width, 5 * window_height / 6);
+
+        SDL_RenderDrawLine(plano, window_width / 6, 0, window_width / 6, window_height);
+
+        // Declaramos la variable de donde va el 0,0
+        h = 5 * window_height / 6;
+        w = window_width / 6;
+    }
+    else if (cuadrante2 == 1)
+    {
+        // Dibujamos las lineas del plano
+        SDL_RenderDrawLine(plano, 0, 5 * window_height / 6, window_width, 5 * window_height / 6);
+
+        SDL_RenderDrawLine(plano, 5 * window_width / 6, 0, 5 * window_width / 6, window_height);
+
+        // Declaramos la variable de donde va el 0,0
+        h = 5 * window_height / 6;
+        w = 5 * window_width / 6;
+    }
+    else if (cuadrante3 == 1)
+    {
+        // Dibujamos las lineas del plano
+        SDL_RenderDrawLine(plano, 0, window_height / 6, window_width, window_height / 6);
+
+        SDL_RenderDrawLine(plano, 5 * window_width / 6, 0, 5 * window_width / 6, window_height);
+
+        // Declaramos la variable de donde va el 0,0
+        h = window_height / 6;
+        w = 5 * window_width / 6;
+    }
+    else if (cuadrante4 == 1)
+    {
+        // Dibujamos las lineas del plano
+        SDL_RenderDrawLine(plano, 0, window_height / 6, window_width, window_height / 6);
+
+        SDL_RenderDrawLine(plano, window_width / 6, 0, window_width / 6, window_height);
+
+        // Declaramos la variable de donde va el 0,0
+        h = window_height / 6;
+        w = window_width / 6;
+    }
+
+    // Llamamos a la función para poder graficar la función y a su vez nos retornará cuanto mide cada unidad de la recta
+    int divisor = drawFuntion(plano, w, h, intervalo, puntos, window_width, pasos, inicio, fin);
+
+    // Ciclo iterativo para asignarle valores a las unidades en x
+    for (int i = (-SDL_abs(fin) * 2) / pasos; i <= (SDL_abs(fin) * 2) / pasos; i++)
+    {
+        // Llamamos a la función para poder agregar el numero a las divisiones en X
+        numbers(plano, font, w + divisor * i, h, i * pasos);
+
+        // Llamamos a la función para poder agregar el numero a las divisiones en Y
+        numbers(plano, font, w, h - divisor * i, i * pasos);
+
+        printf("%i\n", divisor * i);
     }
 
     // TODO: REMOVER RENDERPRESENT LUEGO
@@ -227,12 +286,13 @@ int main()
     SDL_DestroyRenderer(plano);
     SDL_DestroyWindow(window);
     SDL_Quit();
+    TTF_CloseFont(font);
+    TTF_Quit();
 
     return 0;
 }
 
 //? Función que divide el polinomio (poli), y lo pega en "mon" como si se tratase de un monomio
-
 int dividir(char funcion[50], char mon[15], int x)
 {
     // Declaramos variable para recorrer cada uno de los caracteres en el string "poli" para dividirlo al monomio "mon"
@@ -296,6 +356,7 @@ int dividir(char funcion[50], char mon[15], int x)
 
     if (poli[0] != '\0')
     {
+        // ! RETORNAMOS CON 1 MENOS PARA INVERTIR LA FUNCIÓN Y LOGRAR GRAFICAR DE MANERA CORRECTA
         return (valorY(mon, x) + dividir(poli, mon, x));
     }
     else
@@ -364,4 +425,95 @@ int valorY(char mon[15], int x)
 
     // Retornamos la multiplicación del coeficiente por x elevado a lo que este a la derecha de la x
     return atoi(coef) * SDL_pow(x, atoi(&mon[puesto + 1]));
+}
+
+//? Función que dibuja la función
+int drawFuntion(SDL_Renderer *render, int x0, int y0, int intervalo, SDL_Point puntos[640], int windowsize, int pasos, int inicio, int fin)
+{
+
+    // Variable que dará paso a cuanto vale cada unidad de la recta
+    int divisor = 0;
+
+    // Determinamos cual
+    if (SDL_abs(inicio) > SDL_abs(fin))
+    {
+        divisor = windowsize / (SDL_abs(inicio) * 2) * pasos;
+    }
+    else
+    {
+        divisor = windowsize / (SDL_abs(fin) * 2) * pasos;
+    }
+
+    // Creamos las variables divisoras
+    for (int i = 0; divisor * i <= windowsize; i++)
+    {
+        // Hacemos las divisiones del eje Y+
+        SDL_RenderDrawLine(render, x0 - 10, y0 - divisor * i, x0 + 10, y0 - divisor * i);
+
+        // Hacemos las divisiones del eje X+
+        SDL_RenderDrawLine(render, x0 + divisor * i, y0 + 10, x0 + divisor * i, y0 - 10);
+
+        // Hacemos las divisiones del eje Y-
+        SDL_RenderDrawLine(render, x0 - 10, y0 + divisor * i, x0 + 10, y0 + divisor * i);
+
+        // Hacemos las divisiones del eje X-
+        SDL_RenderDrawLine(render, x0 - divisor * i, y0 + 10, x0 - divisor * i, y0 - 10);
+    }
+
+    // Ciclo iterativo el cuál editará el SDL_point vector (puntos[]), y lo editará para hacerlo
+
+    for (int i = 0; i <= intervalo; i++)
+    {
+        //  Guardaremos en un vector los valores q retorne la función
+        puntos[i].x = (puntos[i].x * divisor) + x0;
+        puntos[i].y = -(puntos[i].y * divisor) + y0;
+    }
+
+    SDL_RenderDrawLines(render, puntos, intervalo + 1);
+
+    return divisor;
+}
+
+//? Función para determinar los numeros que irán en las divisiones del plano
+void numbers(SDL_Renderer *render, TTF_Font *font, int x, int y, int num)
+{
+    // Cargar una fuente
+    font = TTF_OpenFont("/usr/share/fonts/TTF/times_new_roman/times.ttf", 18);
+    if (!font)
+    {
+        printf("Error al cargar la fuente: %s\n", TTF_GetError());
+    }
+
+    // Variable que contendrá las cifras del numero
+    int contador = 1;
+
+    // Variable que contendrá el valor de num para poder para la iteración y no edite el valor original
+    int numero = num;
+
+    // Ciclo para saber cuantos digitos tiene un numero
+    while (numero != 0)
+    {
+        numero = numero / 10;
+        contador++;
+    }
+
+    // String donde guardaremos el numero que haremos string y a su vez imprimiremos
+    char text[contador];
+
+    sprintf(text, "%d", num);
+
+    // Declaramos una superficie y una textura que pegaremos en el renderer luego de genererar el numero
+    SDL_Surface *textSurface = TTF_RenderText_Solid(font, text, {0, 0, 0, 255});
+    SDL_Texture *textTexture = SDL_CreateTextureFromSurface(render, textSurface);
+
+    SDL_Rect destRect;
+    destRect.x = x;
+    destRect.y = y;
+    destRect.w = textSurface->w;
+    destRect.h = textSurface->h;
+
+    SDL_RenderCopy(render, textTexture, NULL, &destRect);
+
+    SDL_DestroyTexture(textTexture);
+    SDL_FreeSurface(textSurface);
 }

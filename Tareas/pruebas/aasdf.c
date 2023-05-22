@@ -1,144 +1,91 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <stdio.h>
 
-// Prototipos a usar
+#define NUM_NUMBERS 10
 
-void generarPlano(int, int, SDL_Renderer *);
+int main() {
+    // Inicializar SDL y SDL_ttf
+    SDL_Init(SDL_INIT_VIDEO);
+    TTF_Init();
 
-/* Acá estamos creando un tipo de dato basado en un struct que se va a llamar SDL_Line
- *@param start {{x1,y1}, {x2,y2}, {R,G,B,A}}
- *@param end {{x1,y1}, {x2,y2}, {R,G,B,A}}
- */
-typedef struct
-{
-	SDL_Point start;
-	SDL_Point end;
-} SDL_Line;
+    // Crear ventana y renderizador
+    SDL_Window* window = SDL_CreateWindow("Números en Columnas", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 320, 480, SDL_WINDOW_SHOWN);
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-int main()
-{
+    // Cargar una fuente
+    TTF_Font* font = TTF_OpenFont("/usr/share/fonts/TTF/times_new_roman/times.ttf", 24);
+    if (!font) {
+        printf("Error al cargar la fuente: %s\n", TTF_GetError());
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        TTF_Quit();
+        SDL_Quit();
+        return 1;
+    }
 
-	// Inicializamos SDL2
-	if (SDL_Init(SDL_INIT_VIDEO) != 0)
-	{
-		printf("Error initializing SDL2: %s\n", SDL_GetError());
-		return 1;
-	}
+    // Crear vector de superficies para los números
+    SDL_Surface* numberSurfaces[NUM_NUMBERS] = {NULL};
 
-	// Declaramos una variable para poder manejar eventos (en este caso cerrar la ventana)
-	SDL_Event event;
+    // Renderizar los números en columnas
+    SDL_Color textColor = {255, 255, 255};
+    int columnWidth = 80;
+    int rowHeight = 40;
+    int x = (320 - columnWidth) / 2;
+    int y = 20;
 
-	// Creamos una ventana
-	SDL_Window *window = SDL_CreateWindow("Mi Ventana Redimensionable",
-										  SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 640,
-										  SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    for (int i = 1; i <= NUM_NUMBERS; i++) {
+        // Crear una superficie para el número
+        char numberText[3];
+        sprintf(numberText, "%d", i);
+        numberSurfaces[i - 1] = TTF_RenderText_Solid(font, numberText, textColor);
+        if (!numberSurfaces[i - 1]) {
+            printf("Error al crear la superficie del número %d: %s\n", i, TTF_GetError());
+            break;
+        }
 
-	// Declaramos el renderizados que usaremos para poder dibujar graficos en la ventana
-	SDL_Renderer *plano = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+        // Calcular la posición del número
+        SDL_Rect destRect = {x, y, columnWidth, rowHeight};
 
-	// Verificamos si el render logró crearse de manera exitosa, sino imprime el error y retorna 1
-	if (plano == NULL)
-	{
-		printf("Error creating \"plano\": %s\n", SDL_GetError());
-		SDL_DestroyWindow(window);
-		SDL_Quit();
-		return 1;
-	}
+        // Crear una textura a partir de la superficie
+        SDL_Texture* numberTexture = SDL_CreateTextureFromSurface(renderer, numberSurfaces[i - 1]);
+        if (!numberTexture) {
+            printf("Error al crear la textura del número %d: %s\n", i, SDL_GetError());
+            SDL_FreeSurface(numberSurfaces[i - 1]);
+            break;
+        }
 
-	// Declaramos 2 variables que contendrán el valor de la ventana
-	int window_width, window_height;
+        // Renderizar el número en la posición calculada
+        SDL_RenderCopy(renderer, numberTexture, NULL, &destRect);
 
-	// Función que nos asigna el valor del tamaño de la ventana
-	SDL_GetWindowSize(window, &window_width, &window_height);
+        // Actualizar la posición para el próximo número
+        y += rowHeight;
 
-	// Llamamos a la función para generar el plano
-	generarPlano(window_height, window_width, plano);
+        // Liberar recursos
+        SDL_DestroyTexture(numberTexture);
+    }
 
-	//! Esperar a que el usuario cierre la ventana
-	while (1)
-	{
-		if (SDL_PollEvent(&event))
-		{
-			// Si el usuario cerró la ventana
-			if (event.type == SDL_QUIT)
-			{
-				break;
-			}
-			// Si la ventana fue redimensionada
-			else if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
-			{
+    // Presentar el renderizador
+    SDL_RenderPresent(renderer);
 
-				SDL_Delay(500);
+    // Esperar hasta que se cierre la ventana
+    SDL_Event event;
+    while (SDL_WaitEvent(&event)) {
+        if (event.type == SDL_QUIT) {
+            break;
+        }
+    }
 
-				int new_width, new_height;
-				SDL_GetWindowSize(window, &new_width, &new_height);
+    // Liberar recursos
+    for (int i = 0; i < NUM_NUMBERS; i++) {
+        SDL_FreeSurface(numberSurfaces[i]);
+    }
 
-				// Actualizamos las variables del tamaño de la ventana
-				window_height > window_width ? SDL_SetWindowSize(window, new_height, new_height) : SDL_SetWindowSize(window, new_width, new_width);
+    TTF_CloseFont(font);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    TTF_Quit();
+    SDL_Quit();
 
-				// Volvemos a generar el plano con las nuevas dimensiones de la ventana
-				generarPlano(new_height, new_width, plano);
-			}
-		}
-	}
-
-	SDL_DestroyRenderer(plano);
-	SDL_DestroyWindow(window);
-	SDL_Quit();
-
-	return 0;
-}
-
-void generarPlano(int h, int w, SDL_Renderer *render)
-{
-	// Variable para saber cuantas divisiónes a de tener (DEBE SER PAR)
-	int divisiones = 8;
-	SDL_Line divisoresVerticales[divisiones];
-	SDL_Line divisoresHorizontales[divisiones];
-	float x = 0;
-	float y = 0;
-
-	// Lineas divisoras
-	for (int i = 0; i < divisiones; i++)
-	{
-		divisoresVerticales[i] = (SDL_Line){{x, 0}, {x, h}};
-		divisoresHorizontales[i] = (SDL_Line){{0, y}, {w, y}};
-		x += (float)w / divisiones;
-		y += (float)h / divisiones;
-		printf("%f\n", x);
-	}
-
-	// Color blanco al fondo del plano
-	SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
-
-	// Limpiamos la ventana
-	SDL_RenderClear(render);
-
-	// Cambiamos el color a un tono grisaseo
-	SDL_SetRenderDrawColor(render, 205, 205, 205, 255);
-
-	// Dibujamos las lineas divisoras a través de un bucle for
-	for (int i = 0; i < divisiones; i++)
-	{
-		SDL_RenderDrawLine(render, divisoresVerticales[i].start.x, divisoresVerticales[i].start.y, divisoresVerticales[i].end.x, divisoresVerticales[i].end.y);
-
-		SDL_RenderDrawLine(render, divisoresHorizontales[i].start.x, divisoresHorizontales[i].start.y, divisoresHorizontales[i].end.x, divisoresHorizontales[i].end.y);
-	}
-
-	// Le damos un color a las lineas
-	SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
-
-	// Declaramos la linea X del plano cartesiano
-	SDL_Line lineaX = {{0, h / 2}, {w, h / 2}};
-
-	// Declaramos la linea Y del plano cartesiano
-	SDL_Line lineaY = {{w / 2, 0}, {w / 2, h}};
-
-	// Dibujamos las lineas
-	SDL_RenderDrawLine(render, lineaY.start.x, lineaY.start.y, lineaY.end.x, lineaY.end.y);
-
-	SDL_RenderDrawLine(render, lineaX.start.x, lineaX.start.y, lineaX.end.x, lineaX.end.y);
-
-	// Actualizar el render para mostrar las lineas
-	SDL_RenderPresent(render);
+    return 0;
 }

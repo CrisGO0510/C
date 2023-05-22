@@ -7,6 +7,12 @@
         "string.h": "c",
         "sstream": "c",
         "stdlib.h": "c",
-        "Graficadora.C": "cpp"
+        "Graficadora.C": "cpp",
+        "iosfwd": "c",
+        "*.tcc": "cpp",
+        "limits": "cpp",
+        "numbers": "cpp",
+        "system_error": "cpp",
+        "cerrno": "cpp"
     }
 }
