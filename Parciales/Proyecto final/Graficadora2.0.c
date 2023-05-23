@@ -32,7 +32,6 @@ typedef struct
 } SDL_Line;
 
 // Prototipos a usar
-int graficadora(char[50], int, int, int);
 int dividir(char[50], char[15], int);
 int valorY(char[15], int);
 int drawFuntion(SDL_Renderer *, int, int, int, SDL_Point[640], int, int, int, int);
@@ -41,27 +40,19 @@ void numbers(SDL_Renderer *, TTF_Font *, int, int, int);
 int main()
 {
 
+    /* ----------------------------------------Variables que usaremos---------------------------------------- */
+
+    // Declaramos 2 variables que contendrán el valor de la ventana
+    int window_width, window_height;
+
     // Declaramos 2 variables para saber el intervalo de donde el usuario quiere empezar y terminar el intervalo de la función
-    int inicio = -10, fin = 10;
+    int inicio = -1, fin = 10;
 
     // Declaramos variable que contendrá a cuantos pasos se moverá
     int pasos = 1;
 
     // Variable que contendrá la función ingresada por el usuario
-    char funcion[50] = "5X2-1";
-
-    graficadora(funcion, pasos, inicio, fin);
-
-    return 0;
-}
-
-int graficadora(char funcion[50], int pasos, int inicio, int fin)
-{
-
-    /* ----------------------------------------Variables que usaremos---------------------------------------- */
-
-    // Declaramos 2 variables que contendrán el valor de la ventana
-    int window_width, window_height;
+    char funcion[50] = "2X2-1";
 
     // Declaramos variable que será usada para guardar un monomio de manera temporal
     char mon[15] = "";
@@ -367,7 +358,7 @@ int dividir(char funcion[50], char mon[15], int x)
     {
         // ! RETORNAMOS CON 1 MENOS PARA INVERTIR LA FUNCIÓN Y LOGRAR GRAFICAR DE MANERA CORRECTA
         return (valorY(mon, x) + dividir(poli, mon, x));
-    }
+    }   
     else
     {
         return valorY(mon, x);
@@ -512,7 +503,7 @@ void numbers(SDL_Renderer *render, TTF_Font *font, int x, int y, int num)
     sprintf(text, "%d", num);
 
     // Declaramos una superficie y una textura que pegaremos en el renderer luego de genererar el numero
-    SDL_Surface *textSurface = TTF_RenderText_Solid(font, text, {0, 0, 0, 255});
+    SDL_Surface *textSurface = TTF_RenderText_Solid(font, text, (SDL_Color){0, 0, 0, 255});
     SDL_Texture *textTexture = SDL_CreateTextureFromSurface(render, textSurface);
 
     SDL_Rect destRect;
