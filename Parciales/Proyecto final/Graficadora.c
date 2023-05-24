@@ -487,7 +487,7 @@ int drawFuntion(SDL_Renderer *render, int x0, int y0, int intervalo, SDL_Point p
 void numbers(SDL_Renderer *render, TTF_Font *font, int x, int y, int num)
 {
     // Cargar una fuente
-    font = TTF_OpenFont("/usr/share/fonts/TTF/times_new_roman/times.ttf", 18);
+    font = TTF_OpenFont("/usr/share/fonts/TTF/Inconsolata-Light.ttf", 18);
     if (!font)
     {
         printf("Error al cargar la fuente: %s\n", TTF_GetError());

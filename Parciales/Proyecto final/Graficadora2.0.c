@@ -7,8 +7,6 @@
  * Versión del copilador: gcc (GCC) 12.2.1 20230111
  * Autor: Ing(c) Cristhian Giraldo Orozco
  * Lenguaje utilizado C(ISO/IEC) 201710
- * Versión del lenguaje utilizado
- * Versión del copilador: gcc (GCC) 12.2.1 20230111
  * Sistema Operativo: Arch Linux
  * Presentado a: PhD Ricardo Moreno Laverde
  * Universidad Tecnológica de Pereira
@@ -46,13 +44,13 @@ int main()
     int window_width, window_height;
 
     // Declaramos 2 variables para saber el intervalo de donde el usuario quiere empezar y terminar el intervalo de la función
-    int inicio = -1, fin = 10;
+    int inicio = 0, fin = 10;
 
     // Declaramos variable que contendrá a cuantos pasos se moverá
     int pasos = 1;
 
     // Variable que contendrá la función ingresada por el usuario
-    char funcion[50] = "2X2-1";
+    char funcion[50] = "X2";
 
     // Declaramos variable que será usada para guardar un monomio de manera temporal
     char mon[15] = "";
@@ -258,17 +256,17 @@ int main()
     // Llamamos a la función para poder graficar la función y a su vez nos retornará cuanto mide cada unidad de la recta
     int divisor = drawFuntion(plano, w, h, intervalo, puntos, window_width, pasos, inicio, fin);
 
-    // Ciclo iterativo para asignarle valores a las unidades en x
-    for (int i = (-SDL_abs(fin) * 2) / pasos; i <= (SDL_abs(fin) * 2) / pasos; i++)
-    {
-        // Llamamos a la función para poder agregar el numero a las divisiones en X
-        numbers(plano, font, w + divisor * i, h, i * pasos);
+    // // Ciclo iterativo para asignarle valores a las unidades en x
+    // for (int i = (-SDL_abs(fin) * 2) / pasos; i <= (SDL_abs(fin) * 2) / pasos; i++)
+    // {
+    //     // Llamamos a la función para poder agregar el numero a las divisiones en X
+    //     numbers(plano, font, w + divisor * i, h, i * pasos);
 
-        // Llamamos a la función para poder agregar el numero a las divisiones en Y
-        numbers(plano, font, w, h - divisor * i, i * pasos);
+    //     // Llamamos a la función para poder agregar el numero a las divisiones en Y
+    //     numbers(plano, font, w, h - divisor * i, i * pasos);
 
-        printf("%i\n", divisor * i);
-    }
+    //     printf("%i\n", divisor * i);
+    // }
 
     // TODO: REMOVER RENDERPRESENT LUEGO
     SDL_RenderPresent(plano);
@@ -356,9 +354,8 @@ int dividir(char funcion[50], char mon[15], int x)
 
     if (poli[0] != '\0')
     {
-        // ! RETORNAMOS CON 1 MENOS PARA INVERTIR LA FUNCIÓN Y LOGRAR GRAFICAR DE MANERA CORRECTA
         return (valorY(mon, x) + dividir(poli, mon, x));
-    }   
+    }
     else
     {
         return valorY(mon, x);
@@ -432,32 +429,30 @@ int drawFuntion(SDL_Renderer *render, int x0, int y0, int intervalo, SDL_Point p
 {
 
     // Variable que dará paso a cuanto vale cada unidad de la recta
-    int divisor = 0;
+    int escala = windowsize / (fin - inicio) * pasos;
 
-    // Determinamos cual
-    if (SDL_abs(inicio) > SDL_abs(fin))
-    {
-        divisor = windowsize / (SDL_abs(inicio) * 2) * pasos;
-    }
-    else
-    {
-        divisor = windowsize / (SDL_abs(fin) * 2) * pasos;
-    }
+    // // Creamos las variables divisoras
+    // for (int i = 0; escala * i <= windowsize; i++)
+    // {
+    //     // Hacemos las divisiones del eje X+
+    //     SDL_RenderDrawLine(render, x0 + escala * i, y0 + 10, x0 + escala * i, y0 - 10);
 
-    // Creamos las variables divisoras
-    for (int i = 0; divisor * i <= windowsize; i++)
+    //     // Hacemos las divisiones del eje X-
+    //     SDL_RenderDrawLine(render, x0 - escala * i, y0 + 10, x0 - escala * i, y0 - 10);
+    // }
+
+    // Ciclo iterativo para dibujar las lineas divisores del eje y
+
+    for (int i = 0; i < intervalo; i++)
     {
-        // Hacemos las divisiones del eje Y+
-        SDL_RenderDrawLine(render, x0 - 10, y0 - divisor * i, x0 + 10, y0 - divisor * i);
 
         // Hacemos las divisiones del eje X+
-        SDL_RenderDrawLine(render, x0 + divisor * i, y0 + 10, x0 + divisor * i, y0 - 10);
+        SDL_RenderDrawLine(render, x0 + (escala * puntos[i].x), y0 + 10, x0 + (escala * puntos[i].x), y0 - 10);
 
         // Hacemos las divisiones del eje Y-
-        SDL_RenderDrawLine(render, x0 - 10, y0 + divisor * i, x0 + 10, y0 + divisor * i);
+        SDL_RenderDrawLine(render, x0 - 10, (escala * puntos[i].y) / intervalo, x0 + 10, (escala * puntos[i].y) / intervalo);
 
-        // Hacemos las divisiones del eje X-
-        SDL_RenderDrawLine(render, x0 - divisor * i, y0 + 10, x0 - divisor * i, y0 - 10);
+        printf("%i * %i = %.1f\n", escala, puntos[i].y, (escala * puntos[i].y) / 10.0);
     }
 
     // Ciclo iterativo el cuál editará el SDL_point vector (puntos[]), y lo editará para hacerlo
@@ -465,20 +460,20 @@ int drawFuntion(SDL_Renderer *render, int x0, int y0, int intervalo, SDL_Point p
     for (int i = 0; i <= intervalo; i++)
     {
         //  Guardaremos en un vector los valores q retorne la función
-        puntos[i].x = (puntos[i].x * divisor) + x0;
-        puntos[i].y = -(puntos[i].y * divisor) + y0;
+        puntos[i].x = (puntos[i].x * escala) + x0;
+        puntos[i].y = -(puntos[i].y * escala) + y0;
     }
 
-    SDL_RenderDrawLines(render, puntos, intervalo + 1);
+    // SDL_RenderDrawLines(render, puntos, intervalo + 1);
 
-    return divisor;
+    return escala;
 }
 
 //? Función para determinar los numeros que irán en las divisiones del plano
 void numbers(SDL_Renderer *render, TTF_Font *font, int x, int y, int num)
 {
     // Cargar una fuente
-    font = TTF_OpenFont("/usr/share/fonts/TTF/times_new_roman/times.ttf", 18);
+    font = TTF_OpenFont("/usr/share/fonts/TTF/Inconsolata-Light.ttf", 18);
     if (!font)
     {
         printf("Error al cargar la fuente: %s\n", TTF_GetError());
