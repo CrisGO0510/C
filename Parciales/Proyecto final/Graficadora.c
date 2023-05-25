@@ -21,6 +21,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define Fuente "/usr/share/fonts/TTF/Inconsolata-Light.ttf"
+
 /* Acá estamos creando un tipo de dato basado en un struct que se va a contener 2 puntos, de inicio y de llegada
  *@param start {{x1,y1}, {x2,y2}}
  *@param end {{x1,y1}, {x2,y2}}
@@ -322,26 +324,7 @@ int dividir(char funcion[50], char mon[15], int x)
     while (fin == 0)
     {
         // Sí se encuentra un carácter '+' o '-' o ' ' (Espacio en caso de ser el primer valor porque se omite el '+') significa que el polinomio terminó en dicha posición (i)
-        if (poli[i] == '+' || poli[i] == '-' || poli[i] == '\0')
-        {
-
-            // Si antes del signo + / - hay un parentesis, significa que es del mismo monomio
-            if (poli[i - 1] == '(')
-            {
-                // En este caso, haremos un incremento a la variable i y seguiremos con el bucle
-                i++;
-            }
-            else
-            {
-                // Definimos el valor de fin con la posición actual del string, para así determinar el fin del monomio
-                fin = i;
-            }
-        }
-        else
-        {
-            // Haremos un incremento a la variable i
-            i++;
-        }
+        (poli[i] == '+' || poli[i] == '-' || poli[i] == '\0') ? fin = i : i++;
     }
 
     // Copiamos el monomio en la variable "mon"
@@ -487,7 +470,7 @@ int drawFuntion(SDL_Renderer *render, int x0, int y0, int intervalo, SDL_Point p
 void numbers(SDL_Renderer *render, TTF_Font *font, int x, int y, int num)
 {
     // Cargar una fuente
-    font = TTF_OpenFont("/usr/share/fonts/TTF/Inconsolata-Light.ttf", 18);
+    font = TTF_OpenFont(Fuente, 18);
     if (!font)
     {
         printf("Error al cargar la fuente: %s\n", TTF_GetError());
