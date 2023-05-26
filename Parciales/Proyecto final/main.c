@@ -29,6 +29,8 @@
 
 // Macro con la dirección de la fuente a usar
 #define Fuente "/usr/share/fonts/TTF/Inconsolata-Light.ttf"
+// Macro con la el tamaño de fuente que queremos
+#define letterSize 18
 
 /** estructura para el manejo de usuarios:
  */
@@ -126,7 +128,7 @@ typedef struct GraphicInformation
 // Prototipo de sdl2
 int graficadora(GraphicInformation *, int);
 void stopSDL(SDL_Window *, SDL_Renderer *, TTF_Font *);
-void drawFuction(SDL_Renderer *, CenterGraphic, Point[], int);
+void drawFuction(SDL_Renderer *, TTF_Font *, CenterGraphic, Point[], int, CoordPlanes[]);
 void numbers(SDL_Renderer *, TTF_Font *, int, int, int);
 // Fin prototipo de sdl2
 
@@ -2032,11 +2034,12 @@ int selectGraphicPosible(GraphicInformation *Info, int xValues[], int yValues[],
     obtainCoordinates(Info, xValues, yValues, yValuesOrdered, size);
   }
 
-  printf("Presione enter para avanzar\n");
-  getchar();
-
   // imprimirDatos(Info, size);
 
+  printf("Presione enter para continuar\n");
+  getchar();
+
+  // Llamamos a la graficadora
   graficadora(Info, size);
 
   // ! Llamar a la funcion que grafica
@@ -2405,16 +2408,17 @@ int graficadora(GraphicInformation *api, int size)
   // Color negro a las lineas a dibujar
   SDL_SetRenderDrawColor(plano, 0, 0, 0, 255);
 
-  drawQuadrants(plano, api->center, api->point, size);
+  drawFuction(plano, font, api->center, api->point, size, api->coord);
 
   SDL_RenderPresent(plano);
 
-  int close = 1;
-  while (close)
+  int close = 0;
+
+  while (!close)
   {
     if (SDL_PollEvent(&event) && event.type == SDL_QUIT)
     {
-      close = 0;
+      close++;
     }
   }
 
@@ -2431,6 +2435,7 @@ int graficadora(GraphicInformation *api, int size)
  */
 void stopSDL(SDL_Window *window, SDL_Renderer *render, TTF_Font *font)
 {
+  system("clear");
   SDL_DestroyRenderer(render);
   SDL_DestroyWindow(window);
   SDL_Quit();
@@ -2471,7 +2476,7 @@ void imprimirDatos(GraphicInformation *datos, int size)
  * @param size, el tamaño del todos los vectores destinados a graficar
  * @return no devuelve nada
  */
-void drawFuction(SDL_Renderer *plano, CenterGraphic center, Point point[], int size)
+void drawFuction(SDL_Renderer *plano, TTF_Font *font, CenterGraphic center, Point point[], int size, CoordPlanes coor[])
 {
   // Graficamos el eje Y
   SDL_RenderDrawLine(plano, center.xCenter, 0, center.xCenter, 640);
@@ -2480,13 +2485,17 @@ void drawFuction(SDL_Renderer *plano, CenterGraphic center, Point point[], int s
   SDL_RenderDrawLine(plano, 0, center.yCenter, 640, center.yCenter);
 
   // Hacemos iteraciones para realizar las divisiones entre los ejes
-  for (int i = 0; i < size; i++)
+  for (int i = 0; i <= size; i++)
   {
     // Vamos a graficar las divisones del eje X
     SDL_RenderDrawLine(plano, point[i].x, center.yCenter - 5, point[i].x, center.yCenter + 5);
+    // Ingresamos los valores de esas divisiones
+    numbers(plano, font, point[i].x, center.yCenter - 20, coor[i].valueX);
 
     // Vamos a graficar las divisones del eje Y
     SDL_RenderDrawLine(plano, center.xCenter - 5, point[i].y, center.xCenter + 5, point[i].y);
+    // Ingresamos los valores de esas divisiones
+    numbers(plano, font, center.xCenter, point[i].y, coor[i].valueY);
   }
 
   // Dibujamos la grafica
@@ -2504,14 +2513,14 @@ void drawFuction(SDL_Renderer *plano, CenterGraphic center, Point point[], int s
 void numbers(SDL_Renderer *render, TTF_Font *font, int x, int y, int num)
 {
   // Cargar una fuente
-  font = TTF_OpenFont(Fuente, 18);
+  font = TTF_OpenFont(Fuente, letterSize);
   if (!font)
   {
     printf("Error al cargar la fuente: %s\n", TTF_GetError());
   }
 
   // Variable que contendrá las cifras del numero
-  int contador = 0;
+  int contador = 1;
 
   // Variable que contendrá el valor de num para poder para la iteración y no edite el valor original
   int numero = num;
@@ -2527,6 +2536,13 @@ void numbers(SDL_Renderer *render, TTF_Font *font, int x, int y, int num)
   char text[contador];
 
   sprintf(text, "%d", num);
+
+  // Si num llegase a ser 0, haremos que imprima nada para que no estorbe a la vista
+  if (num == 0)
+  {
+    text[0] = ' ';
+    text[1] = '\0';
+  }
 
   // Declaramos una superficie y una textura que pegaremos en el renderer luego de genererar el numero
   SDL_Surface *textSurface = TTF_RenderText_Solid(font, text, (SDL_Color){0, 0, 0, 255});
