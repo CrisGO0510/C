@@ -14,6 +14,7 @@
  */
 
 // TODO falta la implementacion de la graficadora y queda listo
+// ! eliminar todas las graficas del usuario cuando este se elimine
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
@@ -103,6 +104,14 @@ typedef struct Point
   int y;
 } Point;
 
+/** coordenadas de los ejes, numeros a los que corresponde :
+ */
+typedef struct CoordPlanes
+{
+  int valueX;
+  int valueY;
+} CoordPlanes;
+
 // Estructura para almacenar temporalmente la informacion necesaria para crear una grafica
 typedef struct GraphicInformation
 {
@@ -111,12 +120,15 @@ typedef struct GraphicInformation
   int intervalAxisX;
   CenterGraphic center;
   Point point[10000];
+  CoordPlanes coord[10000];
 } GraphicInformation;
 
-// Prototipo grafica
-int graficadora(GraphicInformation *);
+// Prototipo de sdl2
+int graficadora(GraphicInformation *, int);
 void stopSDL(SDL_Window *, SDL_Renderer *, TTF_Font *);
-// Fin prototipo grafica
+void drawFuction(SDL_Renderer *, CenterGraphic, Point[], int);
+void numbers(SDL_Renderer *, TTF_Font *, int, int, int);
+// Fin prototipo de sdl2
 
 int postMain();
 int singInView();
@@ -157,7 +169,7 @@ int initGraphicate(Users *, int, int);
 int viewGraphicFunction(Graphics *);
 int controlValues(int[], int[], int);
 int selectGraphicPosible(GraphicInformation *, int[], int[], int[], int);
-int quicksort(int[], int, int);
+int selectionSort(int[], int);
 int validateQuadrants(GraphicInformation *, int[], int[], int);
 int obtainRatioAxis(GraphicInformation *, int[], int[], int, int);
 int obtainZeroZero(GraphicInformation *, int[], int[], int, int);
@@ -166,6 +178,7 @@ int menuRootUser(Users *);
 int menuNormalUser(Users *);
 int handleRootUserOption(Users *, int);
 int handleNormalUserOption(Users *, int);
+void imprimirDatos(GraphicInformation *, int);
 
 int main()
 {
@@ -1743,7 +1756,7 @@ int removeGraphic(Users *user, int result, int defaul)
   scanf("%i", &graphic.ID);
   getchar();
 
-  char firstPartRegisterDb[96] = "";
+  char firstPartRegisterDb[123] = "";
   char secendPartRegisterDb[8] = "";
   char tempDataBase[10000] = "";
   int stopPrint = 1;
@@ -1752,7 +1765,7 @@ int removeGraphic(Users *user, int result, int defaul)
   while (fgets(firstPartRegisterDb, sizeof(firstPartRegisterDb), graphicsDb))
   {
     int userID = 0;
-    sscanf(firstPartRegisterDb, "- %i", &userID);
+    sscanf(firstPartRegisterDb, "- %i  -", &userID);
 
     int graphicID = 0;
     fgets(secendPartRegisterDb, sizeof(secendPartRegisterDb), graphicsDb);
@@ -1768,20 +1781,20 @@ int removeGraphic(Users *user, int result, int defaul)
       }
       else
       {
-        strcat(tempDataBase, "- 0           -            -                                -          -          -          -     -\n");
-        strcat(tempDataBase, "----------------------------------------------------------------------------------------------------\n");
+        strcat(tempDataBase, "-             -            -                                -                    -                    -                    -     -\n");
+        strcat(tempDataBase, "----------------------------------------------------------------------------------------------------------------------------------\n");
         stopPrint = 0;
       }
     }
 
     if (lineWithData == 2)
     {
-      strcat(tempDataBase, "- UsernameID  - Date       - Graphic                        - Rangom   - RangoM   - Incremt  - ID  -\n");
+      strcat(tempDataBase, "- UsernameID  - Date       - Graphic                        - Rangom             - RangoM             - Incremt            - ID  -\n");
     }
 
     if ((lineWithData % 2) == 1 && stopPrint)
     {
-      strcat(tempDataBase, "----------------------------------------------------------------------------------------------------\n");
+      strcat(tempDataBase, "----------------------------------------------------------------------------------------------------------------------------------\n");
     }
     lineWithData++;
   }
@@ -1897,6 +1910,7 @@ int fxValues(char extractedMon[10], int x)
 int initGraphicate(Users *user, int result, int defaul)
 {
   findOneGraphic(user, result, defaul);
+  return result;
 }
 
 /** Se encarga de extraer el total de puntos que hay que graficar y luego almacena
@@ -1932,7 +1946,9 @@ int viewGraphicFunction(Graphics *graphic)
   controlValues(xValues, yValues, obtainPosition);
 }
 
-/** Se encarga de ordenar el arreglo de yValues de menor a mayor, ....
+/** Se encarga de ordenar el arreglo de yValues de menor a mayor, luego de validar los
+ * cuadrantes que se van a usar y llamar a una funcion que decide que tipo de plano
+ * hay que armar:
  * @param xValues almacena el arreglo con la informacion de los valores de x.
  * @param yValues almacena el arreglo con la informacion de los valores de y.
  * @param size almacena el tamaño del arreglo de numero
@@ -1947,7 +1963,8 @@ int controlValues(int xValues[], int yValues[], int size)
   {
     yValuesSort[i] = yValues[i];
   }
-  quicksort(yValuesSort, 0, size);
+
+  selectionSort(yValuesSort, size);
   validateQuadrants(&InfoGraphic, xValues, yValuesSort, size);
   selectGraphicPosible(&InfoGraphic, xValues, yValues, yValuesSort, size);
 }
@@ -1960,10 +1977,11 @@ int controlValues(int xValues[], int yValues[], int size)
  */
 int selectGraphicPosible(GraphicInformation *Info, int xValues[], int yValues[], int yValuesOrdered[], int size)
 {
-  if (Info->itsUsed.quadrantsOne && Info->itsUsed.quadrantsTwo && Info->itsUsed.quadrantsThree && Info->itsUsed.quadrantsFourt)
+  if (Info->itsUsed.quadrantsOne && Info->itsUsed.quadrantsThree || Info->itsUsed.quadrantsTwo && Info->itsUsed.quadrantsFourt)
   {
     obtainRatioAxis(Info, xValues, yValuesOrdered, size, 1);
     obtainCoordinates(Info, xValues, yValues, yValuesOrdered, size);
+    // Info->itsUsed.quadrantsOne = Info->itsUsed.quadrantsTwo = Info->itsUsed.quadrantsThree = Info->itsUsed.quadrantsFourt = 4;
   }
   else if (Info->itsUsed.quadrantsOne && Info->itsUsed.quadrantsTwo)
   {
@@ -1989,33 +2007,37 @@ int selectGraphicPosible(GraphicInformation *Info, int xValues[], int yValues[],
   {
     Info->center.xCenter = 16;
     Info->center.yCenter = 624;
+    Info->intervalAxisX = 640 / (size - 1);
     obtainCoordinates(Info, xValues, yValues, yValuesOrdered, size);
   }
   else if (Info->itsUsed.quadrantsTwo)
   {
     Info->center.xCenter = 624;
     Info->center.yCenter = 624;
+    Info->intervalAxisX = 640 / (size - 1);
     obtainCoordinates(Info, xValues, yValues, yValuesOrdered, size);
   }
   else if (Info->itsUsed.quadrantsThree)
   {
     Info->center.xCenter = 624;
     Info->center.yCenter = 16;
+    Info->intervalAxisX = 640 / (size - 1);
     obtainCoordinates(Info, xValues, yValues, yValuesOrdered, size);
   }
   else if (Info->itsUsed.quadrantsFourt)
   {
     Info->center.xCenter = 16;
     Info->center.yCenter = 16;
+    Info->intervalAxisX = 640 / (size - 1);
     obtainCoordinates(Info, xValues, yValues, yValuesOrdered, size);
   }
 
   printf("Presione enter para avanzar\n");
   getchar();
 
-  imprimirDatos(Info);
+  // imprimirDatos(Info, size);
 
-  // graficadora(Info);
+  graficadora(Info, size);
 
   // ! Llamar a la funcion que grafica
 
@@ -2028,30 +2050,21 @@ int selectGraphicPosible(GraphicInformation *Info, int xValues[], int yValues[],
  * @param high almacena el índice más alto del rango a ordenar.
  * @return no devuelve nada, solo altera un arreglo ordenandolo de menor a mayor.
  */
-int quicksort(int arr[], int low, int high)
+int selectionSort(int arr[], int size)
 {
-  if (low < high - 1)
+  for (int i = 0; i < size - 1; i++)
   {
-    int pivot = arr[high - 1];
-    int i = low - 1;
-
-    for (int j = low; j <= high - 1; j++)
+    int minIndex = i;
+    for (int j = i + 1; j < size; j++)
     {
-      if (arr[j] < pivot)
+      if (arr[j] < arr[minIndex])
       {
-        i++;
-        int temp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = temp;
+        minIndex = j;
       }
     }
-    int temp = arr[i + 1];
-    arr[i + 1] = arr[high - 1];
-    arr[high - 1] = temp;
-
-    int pi = i + 1;
-    quicksort(arr, low, pi - 1);
-    quicksort(arr, pi + 1, high);
+    int temp = arr[minIndex];
+    arr[minIndex] = arr[i];
+    arr[i] = temp;
   }
 }
 
@@ -2160,10 +2173,10 @@ int obtainZeroZero(GraphicInformation *Info, int xValues[], int yValues[], int s
     Info->center.yCenter = Info->axisSize.yAxis[0];
   }
 
-  int distansUntilZero;
+  int distansUntilZero = 0;
   int existZero = 0;
   int posZero = 0;
-  for (int i = 0; i <= size; i++)
+  for (int i = 0; i < size; i++)
   {
     if (xValues[i] == 0)
     {
@@ -2176,7 +2189,7 @@ int obtainZeroZero(GraphicInformation *Info, int xValues[], int yValues[], int s
 
   if (existZero)
   {
-    Info->center.xCenter = Info->intervalAxisX * distansUntilZero;
+    Info->center.xCenter = Info->intervalAxisX * (distansUntilZero - 1);
     return 0;
   }
 
@@ -2221,28 +2234,38 @@ int obtainZeroZero(GraphicInformation *Info, int xValues[], int yValues[], int s
  */
 int obtainCoordinates(GraphicInformation *Info, int xValues[], int yValues[], int yValuesOrdered[], int size)
 {
+  for (int i = 0; i < size; i++)
+  {
+    if (yValues[i] < 0)
+    {
+      int axisY = Info->center.yCenter * yValues[i] / yValuesOrdered[0];
+      Info->point[i].x = Info->intervalAxisX * i;
+      Info->point[i].y = abs((-1 * axisY) - Info->center.yCenter);
+      Info->coord[i].valueX = xValues[i];
+      Info->coord[i].valueY = yValues[i];
+    }
+    if (yValues[i] >= 0)
+    {
+      int axisY = Info->center.yCenter * yValues[i] / yValuesOrdered[size - 1];
+      Info->point[i].x = Info->intervalAxisX * i;
+      Info->point[i].y = abs((-1 * axisY) + Info->center.yCenter);
+      Info->coord[i].valueX = xValues[i];
+      Info->coord[i].valueY = yValues[i];
+    }
+  }
+
   printf("|  x  |  y  |\n");
   for (int i = 0; i < size; i++)
   {
     printf("|  %i  |  %i  |\n", xValues[i], yValues[i]);
   }
 
+  printf("DATOS PROCESADOS\n");
+
+  printf("|  x    |  y    |\n");
   for (int i = 0; i < size; i++)
   {
-    if (yValues[i] < 0)
-    {
-      int axisY = Info->center.yCenter / (yValuesOrdered[0] / yValues[i]);
-      Info->point[i].x = Info->intervalAxisX * i;
-      Info->point[i].y = (-1 * axisY) - Info->center.yCenter;
-      printf("|%i|%i|\n", Info->point[i].x, Info->point[i].y);
-    }
-    if (yValues[i] >= 0)
-    {
-      int axisY = Info->center.yCenter / (yValuesOrdered[size - 1] / yValues[i]);
-      Info->point[i].x = Info->intervalAxisX * i;
-      Info->point[i].y = (-1 * axisY) + Info->center.yCenter;
-      printf("|%i|%i|\n", Info->point[i].x, Info->point[i].y);
-    }
+    printf("|  %ipx  |  %ipx  |\n", Info->intervalAxisX * i, Info->point[i].y);
   }
 }
 
@@ -2332,7 +2355,7 @@ int handleNormalUserOption(Users *user, int option)
  * @param api estructura para almacenar la informacion necesaria para crear una grafica
  * @return 1 si hubo un error al generarse la grafica y 0 si se generó correctamente
  */
-int graficadora(GraphicInformation *api)
+int graficadora(GraphicInformation *api, int size)
 {
   // Inicializamos SDL2
   if (SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -2379,6 +2402,13 @@ int graficadora(GraphicInformation *api)
   // Limpiamos la ventana
   SDL_RenderClear(plano);
 
+  // Color negro a las lineas a dibujar
+  SDL_SetRenderDrawColor(plano, 0, 0, 0, 255);
+
+  drawQuadrants(plano, api->center, api->point, size);
+
+  SDL_RenderPresent(plano);
+
   int close = 1;
   while (close)
   {
@@ -2399,9 +2429,9 @@ int graficadora(GraphicInformation *api)
  * @param font puntero del fuente a cerrar.
  * @return no devuelve nada
  */
-void stopSDL(SDL_Window *plano, SDL_Renderer *window, TTF_Font *font)
+void stopSDL(SDL_Window *window, SDL_Renderer *render, TTF_Font *font)
 {
-  SDL_DestroyRenderer(plano);
+  SDL_DestroyRenderer(render);
   SDL_DestroyWindow(window);
   SDL_Quit();
   TTF_CloseFont(font);
@@ -2409,7 +2439,7 @@ void stopSDL(SDL_Window *plano, SDL_Renderer *window, TTF_Font *font)
 }
 
 // TODO: FUNCION TEMPORAL PARA VER LOS VALORES INTERNOS DEL API
-void imprimirDatos(GraphicInformation *datos)
+void imprimirDatos(GraphicInformation *datos, int size)
 {
   printf("Datos de GraphicInformation:\n");
   printf("Quadrants:\n");
@@ -2425,9 +2455,91 @@ void imprimirDatos(GraphicInformation *datos)
   printf("CenterGraphic:\n");
   printf("  xCenter: %d\n", datos->center.xCenter);
   printf("  yCenter: %d\n", datos->center.yCenter);
-  printf("Puntos:\n");
-  for (int i = 0; i < 10000; i++)
+  printf("Presione enter para avanzar\n");
+  for (int i = 0; i < size; i++)
   {
-    printf("  Punto %d - x: %d, y: %d\n", i + 1, datos->point[i].x, datos->point[i].y);
+    printf("  Punto %d - x: %d, y: %d\n", i + 1, datos->coord[i].valueX, datos->coord[i].valueY);
   }
+
+  getchar();
+}
+
+/** Función encargada de dibujar los cuadrantes, sus divisiones y la grafica:
+ * @param plano, puntero al renderer sobre el cuál queremos renderizar
+ * @param center, estructura que contendrá los valores del (0,0) en escala con respecto al plano
+ * @param point, Estructura de vectores que contiene el valor de X y Y de la función
+ * @param size, el tamaño del todos los vectores destinados a graficar
+ * @return no devuelve nada
+ */
+void drawFuction(SDL_Renderer *plano, CenterGraphic center, Point point[], int size)
+{
+  // Graficamos el eje Y
+  SDL_RenderDrawLine(plano, center.xCenter, 0, center.xCenter, 640);
+
+  // Graficamos el eje X
+  SDL_RenderDrawLine(plano, 0, center.yCenter, 640, center.yCenter);
+
+  // Hacemos iteraciones para realizar las divisiones entre los ejes
+  for (int i = 0; i < size; i++)
+  {
+    // Vamos a graficar las divisones del eje X
+    SDL_RenderDrawLine(plano, point[i].x, center.yCenter - 5, point[i].x, center.yCenter + 5);
+
+    // Vamos a graficar las divisones del eje Y
+    SDL_RenderDrawLine(plano, center.xCenter - 5, point[i].y, center.xCenter + 5, point[i].y);
+  }
+
+  // Dibujamos la grafica
+  SDL_RenderDrawLines(plano, point, size);
+}
+
+/** Función encargada de renderizar el valor de las divisiones:
+ * @param render puntero del renderer a destruir.
+ * @param font puntero de la fuente q usaremos
+ * @param x coordenada en X (px) donde pondremos el numero
+ * @param y coordenada en Y (px) donde pondremos el numero
+ * @param num numero el cuál pegaremos en las coordenadas (x,y)
+ * @return no devuelve nada
+ */
+void numbers(SDL_Renderer *render, TTF_Font *font, int x, int y, int num)
+{
+  // Cargar una fuente
+  font = TTF_OpenFont(Fuente, 18);
+  if (!font)
+  {
+    printf("Error al cargar la fuente: %s\n", TTF_GetError());
+  }
+
+  // Variable que contendrá las cifras del numero
+  int contador = 0;
+
+  // Variable que contendrá el valor de num para poder para la iteración y no edite el valor original
+  int numero = num;
+
+  // Ciclo para saber cuantos digitos tiene un numero
+  while (numero != 0)
+  {
+    numero = numero / 10;
+    contador++;
+  }
+
+  // String donde guardaremos el numero que haremos string y a su vez imprimiremos
+  char text[contador];
+
+  sprintf(text, "%d", num);
+
+  // Declaramos una superficie y una textura que pegaremos en el renderer luego de genererar el numero
+  SDL_Surface *textSurface = TTF_RenderText_Solid(font, text, (SDL_Color){0, 0, 0, 255});
+  SDL_Texture *textTexture = SDL_CreateTextureFromSurface(render, textSurface);
+
+  SDL_Rect destRect;
+  destRect.x = x;
+  destRect.y = y;
+  destRect.w = textSurface->w;
+  destRect.h = textSurface->h;
+
+  SDL_RenderCopy(render, textTexture, NULL, &destRect);
+
+  SDL_DestroyTexture(textTexture);
+  SDL_FreeSurface(textSurface);
 }
