@@ -17,7 +17,7 @@ int main()
 
     // Creamos una ventana
 
-    SDL_Window *window = SDL_CreateWindow("Mi ventana", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN);
+    SDL_Window *window = SDL_CreateWindow("Mi ventana", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 480, SDL_WINDOW_SHOWN);
 
     // Verificamos si la ventana logró crearse de manera exitosa, sino imprime el error y retorna 1
     if (window == NULL)

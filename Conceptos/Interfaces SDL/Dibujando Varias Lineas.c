@@ -15,7 +15,7 @@ int main()
         proporcionado. Entonces para dibujar el triangulo necesitaria 4 puntos
         repitiendo el primero
     */
-    SDL_Point points[4] = {{100, 100}, {200, 300}, {300, 100}, {100, 100}};
+    SDL_Point points[4] = {{100, 100}, {200, 300}, {300, 100}, {400, 150}};
 
     // Hacemos el fondo blanco
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);

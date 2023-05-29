@@ -13,9 +13,6 @@
  * Salvedades:
  */
 
-// TODO falta la implementacion de la graficadora y queda listo
-// ! eliminar todas las graficas del usuario cuando este se elimine
-
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <stdio.h>
@@ -84,8 +81,8 @@ typedef struct Quadrants
  */
 typedef struct AxisSize
 {
-  int xAxis[2];
-  int yAxis[2];
+  long long int xAxis[2];
+  long long int yAxis[2];
 } AxisSize;
 
 /** estructura para almacenar las coordenadas mas precisas del (0,0) que es la intersecion
@@ -93,8 +90,8 @@ typedef struct AxisSize
  */
 typedef struct CenterGraphic
 {
-  int xCenter;
-  int yCenter;
+  long long int xCenter;
+  long long int yCenter;
 } CenterGraphic;
 
 /** estructura para almacenar todas las coordenadas, (los puntos) que se necesitan para crear la grafia
@@ -102,16 +99,16 @@ typedef struct CenterGraphic
  */
 typedef struct Point
 {
-  int x;
-  int y;
+  long long int x;
+  long long int y;
 } Point;
 
 /** coordenadas de los ejes, numeros a los que corresponde :
  */
 typedef struct CoordPlanes
 {
-  int valueX;
-  int valueY;
+  long long int valueX;
+  long long int valueY;
 } CoordPlanes;
 
 // Estructura para almacenar temporalmente la informacion necesaria para crear una grafica
@@ -119,18 +116,12 @@ typedef struct GraphicInformation
 {
   Quadrants itsUsed;
   AxisSize axisSize;
-  int intervalAxisX;
+  long long int intervalAxisX;
+  long long int totalIntervalX;
   CenterGraphic center;
   Point point[10000];
   CoordPlanes coord[10000];
 } GraphicInformation;
-
-// Prototipo de sdl2
-int graficadora(GraphicInformation *, int);
-void stopSDL(SDL_Window *, SDL_Renderer *, TTF_Font *);
-void drawFuction(SDL_Renderer *, TTF_Font *, CenterGraphic, Point[], int, CoordPlanes[]);
-void numbers(SDL_Renderer *, TTF_Font *, int, int, int);
-// Fin prototipo de sdl2
 
 int postMain();
 int singInView();
@@ -155,8 +146,9 @@ int findAllUsersByRoot(Users *, int, int);
 int changePassword(Users *, int, int);
 int changePasswordSelectAdmin(Users *, int, int);
 int removeUser(Users *, int, int);
-int compareAscending(const void *, const void *);
-int compareDescending(const void *, const void *);
+int compareDates(const char *, const char *);
+void sortByDate(Graphics[], int);
+void sortByDateDescending(Graphics[], int);
 int createDbGraphics();
 int createNewGraphic(Users *, int, int);
 int findOneGraphic(Users *, int, int);
@@ -171,25 +163,60 @@ int initGraphicate(Users *, int, int);
 int viewGraphicFunction(Graphics *);
 int controlValues(int[], int[], int);
 int selectGraphicPosible(GraphicInformation *, int[], int[], int[], int);
-int selectionSort(int[], int);
+void quicksort(int[], int, int);
+int partition(int[], int, int);
+void swap(int *, int *);
+void swapDate(Graphics *, Graphics *);
 int validateQuadrants(GraphicInformation *, int[], int[], int);
 int obtainRatioAxis(GraphicInformation *, int[], int[], int, int);
 int obtainZeroZero(GraphicInformation *, int[], int[], int, int);
 int obtainCoordinates(GraphicInformation *, int[], int[], int[], int);
+int graphicater(GraphicInformation *, int);
+void drawFuction(SDL_Renderer *, TTF_Font *, CenterGraphic, Point[], int, CoordPlanes[], int);
+void numbers(SDL_Renderer *, TTF_Font *, int, int, int);
 int menuRootUser(Users *);
 int menuNormalUser(Users *);
 int handleRootUserOption(Users *, int);
 int handleNormalUserOption(Users *, int);
-void imprimirDatos(GraphicInformation *, int);
 
-int main()
+void imprimirDatos(GraphicInformation *datos, int size)
+{
+  printf("Datos de GraphicInformation:\n");
+  printf("Quadrants:\n");
+  printf("  QuadrantsOne: %d\n", datos->itsUsed.quadrantsOne);
+  printf("  QuadrantsTwo: %d\n", datos->itsUsed.quadrantsTwo);
+  printf("  QuadrantsThree: %d\n", datos->itsUsed.quadrantsThree);
+  printf("  QuadrantsFour: %d\n", datos->itsUsed.quadrantsFourt);
+  printf("AxisSize:\n");
+  printf("  xAxis[0]: %lli\n", datos->axisSize.xAxis[0]);
+  printf("  xAxis[1]: %lli\n", datos->axisSize.xAxis[1]);
+  printf("  yAxis[0]: %lli\n", datos->axisSize.yAxis[0]);
+  printf("  yAxis[1]: %lli\n", datos->axisSize.yAxis[1]);
+  printf("CenterGraphic:\n");
+  printf("  xCenter: %d\n", datos->center.xCenter);
+  printf("  yCenter: %d\n", datos->center.yCenter);
+  printf("Presione enter para avanzar\n");
+  for (int i = 0; i < size; i++)
+  {
+    printf("  Coord %i - x: %lli, y: %lli\n", i + 1, datos->coord[i].valueX, datos->coord[i].valueY);
+  }
+  for (int i = 0; i < size; i++)
+  {
+    printf("  Punto %i - x: %lli, y: %lli\n", i + 1, datos->point[i].x, datos->point[i].y);
+  }
+
+  printf("Presione enter para mostrar la grafica\n");
+  getchar();
+}
+
+int main(int argc, char *argv[])
 {
   postMain();
   system("clear");
   return 0;
 };
 
-/** Se encarga de controlar que solo existan tres intentos de inicio de sesion
+/** se encarga de controlar que solo existan tres intentos de inicio de sesion
  * hasta que el programa decida cerrarce devido a que se han acabado los intentos,
  * ademas de validar si es la primera vez que se ejecuta el programa:
  * @return devuelve un 0 cuando haya finalizado el programa.
@@ -235,7 +262,7 @@ int singInView()
   return 0;
 };
 
-/** Se encarga de validar si la base de datos existe, ya que si esta existe significa
+/** se encarga de validar si la base de datos existe, ya que si esta existe significa
  * que ya existe un usuario root, por ende se puede dejar usar el aplicativo,
  * de lo contrario se cerrara el programa apenas se cree el root:
  * @return devuelve un 0 si la base de datos no existe, devuelve un 1 si ya exite la misma.
@@ -253,7 +280,7 @@ int controlFirstSesion()
   return 1;
 }
 
-/** Se encarga de recibir la opcion que el usuario desea ejecutar, ademas de llamar
+/** se encarga de recibir la opcion que el usuario desea ejecutar, ademas de llamar
  * a otras funciones para poder mostrar el menu del usuario correspondiente:
  * @param user almacena la informacion del usuario correspondiente.
  * @param option almacena la opcion que el usuario va a elegir.
@@ -293,7 +320,7 @@ int optionMenuControl(Users *user, int option)
   return option;
 };
 
-/** Se encarga de validar que las opciones que elija el usuario sean nuemeros enteros,
+/** se encarga de validar que las opciones que elija el usuario sean nuemeros enteros,
  * ademas de comprobar que esten en el rango correspondiente:
  * @param option  almacena la opcion que el usuario va a elegir.
  * @param userOption  almacena un numero para identificar que tipo de usuario se esta usando.
@@ -341,7 +368,7 @@ int validateOption(int option, int userOption, Users *user)
   return option;
 }
 
-/** Verifica si una cadena de caracteres representa un número entero válido.
+/** verifica si una cadena de caracteres representa un número entero válido.
  * @param str La cadena de caracteres a verificar.
  * @return 1 si la cadena representa un entero válido, 0 en caso contrario.
  */
@@ -499,29 +526,30 @@ int obtaindisplacement()
  * @return no devuelve nada pero cambia el contenido de la contraseña
  * sustituyendola por una ya encriptada.
  */
-int encrypt(char *string){
-    // int lenghtPassword = strlen(string);
-    // char keyWord[7] = "";
-    // int displacement = obtaindisplacement();
+int encrypt(char *string)
+{
+  int lenghtPassword = strlen(string);
+  char keyWord[7] = "";
+  int displacement = obtaindisplacement();
 
-    // for (int i = 0; i < 7; i++)
-    // {
-    //   keyWord[i] = obtainKeyWord(i);
-    // };
+  for (int i = 0; i < 7; i++)
+  {
+    keyWord[i] = obtainKeyWord(i);
+  };
 
-    // int lenghKeyWord = strlen(keyWord);
+  int lenghKeyWord = strlen(keyWord);
 
-    // for (int i = 0; i < lenghtPassword; i++)
-    // {
-    //   for (int j = 0; j < lenghKeyWord; j++)
-    //   {
-    //     if (string[i] == keyWord[j])
-    //     {
-    //       string[i] = j + 32;
-    //     }
-    //   };
-    //   string[i] = string[i] + displacement;
-    // };
+  for (int i = 0; i < lenghtPassword; i++)
+  {
+    for (int j = 0; j < lenghKeyWord; j++)
+    {
+      if (string[i] == keyWord[j])
+      {
+        string[i] = j + 32;
+      }
+    };
+    string[i] = string[i] + displacement;
+  };
 };
 
 /** Se encarga de decencriptar la contraseña para su manejo en este
@@ -636,15 +664,14 @@ int createDataBase(Users *root, int result)
   initscr();
   printw("Ingresar la nueva password del root:\n\n");
   getPassword(root->Password, sizeof(root->Password), 3);
-  root->Password[strlen(root->Password) - 1] = '\0';
+  int lengthPassword = strlen(root->Password);
+  root->Password[lengthPassword - 1] = '\0';
 
   char *passwordAdrees = root->Password;
 
   encrypt(passwordAdrees);
 
   int lengthUsername = strlen(root->Username);
-  int lengthPassword = strlen(root->Password);
-
   while (lengthUsername < 48)
   {
     strcat(spacesUsername, " ");
@@ -702,14 +729,14 @@ int createNewUser(Users *root, int process, int defaul)
 
   printw("Ingresar la nueva password del usuario:\n\n");
   getPassword(user.Password, sizeof(user.Password), 3);
+  int lengthPassword = strlen(user.Password);
+  user.Password[lengthPassword] = '\0';
 
   char *passwordAdrees = user.Password;
 
   encrypt(passwordAdrees);
 
   int lengthUsername = strlen(user.Username);
-  int lengthPassword = strlen(user.Password);
-
   while (lengthUsername < 48)
   {
     strcat(spacesUsername, " ");
@@ -820,7 +847,7 @@ int findUser(Users *user, int result)
 
   if (!database)
   {
-    printf("Error, aun o se ha creado ningun usuario\n");
+    printf("Error, aun no se ha creado ningun usuario\n");
     return 0;
   }
 
@@ -1127,11 +1154,6 @@ int changePasswordSelectAdmin(Users *root, int result, int defaul)
 
   compareUser = findUserByRoot(&user, 0);
 
-  if (compareUser.ID == 0)
-  {
-    return 0;
-  }
-
   if (strcmp(user.Username, compareUser.Username))
   {
     printf("usuario no existente");
@@ -1303,6 +1325,11 @@ int removeUser(Users *root, int result, int defaul)
         strcat(tempDataBase, "-          -                                                  -                                                  -\n");
         strcat(tempDataBase, "------------------------------------------------------------------------------------------------------------------\n");
         stopPrint = 0;
+        if (defaul)
+        {
+          user = findUserByRoot(&user, result);
+          removeGraphic(&user, 0, defaul);
+        }
       }
     };
 
@@ -1334,32 +1361,88 @@ int removeUser(Users *root, int result, int defaul)
   return result;
 }
 
-/** Compara dos elementos de tipo Graphics en orden ascendente basándose en el campo ID.
- * @param a Puntero al primer elemento a comparar.
- * @param b Puntero al segundo elemento a comparar.
- * @return Un número negativo si el ID del primer elemento es menor que el del segundo,
- * cero si son iguales, o un número positivo si el ID del primer elemento es mayor.
+/** Compara dos fechas en formato "dd-mm-aa".
+ * @param date1: Primera fecha a comparar.
+ * @param date2: Segunda fecha a comparar.
+ * @return: Devuelve -1 si date1 es menor que date2, 1 si date1 es mayor que date2, y 0 si son iguales.
  */
-int compareAscending(const void *a, const void *b)
+int compareDates(const char *date1, const char *date2)
 {
-  const Graphics *graphic1 = (const Graphics *)a;
-  const Graphics *graphic2 = (const Graphics *)b;
+  int day1, month1, year1;
+  int day2, month2, year2;
+  sscanf(date1, "%d-%d-%d", &day1, &month1, &year1);
+  sscanf(date2, "%d-%d-%d", &day2, &month2, &year2);
 
-  return graphic1->ID - graphic2->ID;
+  if (year1 < year2)
+    return -1;
+  else if (year1 > year2)
+    return 1;
+  else
+  {
+    if (month1 < month2)
+      return -1;
+    else if (month1 > month2)
+      return 1;
+    else
+    {
+      if (day1 < day2)
+        return -1;
+      else if (day1 > day2)
+        return 1;
+      else
+        return 0;
+    }
+  }
 }
 
-/** Compara dos elementos de tipo Graphics en orden descendente basándose en el campo ID.
- * @param a Puntero al primer elemento a comparar.
- * @param b Puntero al segundo elemento a comparar.
- * @return Un número negativo si el ID del segundo elemento es menor que el del primero,
- * cero si son iguales, o un número positivo si el ID del segundo elemento es mayor.
+/** Compara dos fechas en formato "dd-mm-aa" y ordena un arreglo de estructuras 'Graphics' por el valor de las fechas en orden ascendente.
+ * @param arr El arreglo de estructuras 'Graphics' a ordenar.
+ * @param size El tamaño del arreglo.
  */
-int compareDescending(const void *a, const void *b)
+void sortByDate(Graphics arr[], int size)
 {
-  const Graphics *graphic1 = (const Graphics *)a;
-  const Graphics *graphic2 = (const Graphics *)b;
+  int i, j;
+  for (i = 0; i < size - 1; i++)
+  {
+    for (j = 0; j < size - i - 1; j++)
+    {
+      if (compareDates(arr[j].date, arr[j + 1].date) > 0)
+      {
+        swapDate(&arr[j], &arr[j + 1]);
+      }
+    }
+  }
+}
 
-  return graphic2->ID - graphic1->ID;
+/** Compara dos fechas en formato "dd-mm-aa" y ordena un arreglo de estructuras 'Graphics' por el valor de las fechas en orden descendente.
+ * @param arr El arreglo de estructuras 'Graphics' a ordenar.
+ * @param size El tamaño del arreglo.
+ */
+void sortByDateDescending(Graphics arr[], int size)
+{
+  int i, j;
+  for (i = 0; i < size - 1; i++)
+  {
+    for (j = 0; j < size - i - 1; j++)
+    {
+      if (compareDates(arr[j].date, arr[j + 1].date) < 0)
+      {
+        swapDate(&arr[j], &arr[j + 1]);
+      }
+    }
+  }
+}
+
+/** Intercambia los valores de dos variables enteras.
+ * @param a: Puntero al primer entero.
+ * @param b: Puntero al segundo entero.
+ */
+void swapDate(Graphics *a, Graphics *b)
+{
+  char temp[9];
+  strcpy(temp, a->date);
+  strcpy(a->date, b->date);
+  strcpy(b->date, temp);
 }
 
 /** Se encarga de crear la base de datos que almacena las graficas de todos los usuarios:
@@ -1518,7 +1601,7 @@ int findOneGraphic(Users *user, int result, int defaul)
   }
 
   printf("Aplicativo - graficador - UTP - impresion de grafica por referencia\n");
-  printf("Entre Nrp {referencia}:");
+  printf("Entre Nrp {referencia}: ");
   fflush(stdin);
   scanf("%i", &graphicId);
   getchar();
@@ -1538,15 +1621,19 @@ int findOneGraphic(Users *user, int result, int defaul)
         {
           userGraphic.ID = graphic.UsernameID;
           userGraphic = findUserByRoot(&userGraphic, result);
+          printf("Username: %s Fecha: %s\n", userGraphic.Username, graphic.date);
+          printf("f(x) = %s Rango: %i a %i. Incremento: %i\n", graphic.function, graphic.rangem, graphic.rangeM, graphic.incremt);
+          viewGraphicFunction(&graphic);
+          return result;
         }
-        if (defaul == 0)
+        if (defaul == 0 && graphic.UsernameID == user->ID)
         {
           userGraphic = *user;
+          printf("Username: %s Fecha: %s\n", userGraphic.Username, graphic.date);
+          printf("f(x) = %s Rango: %i a %i. Incremento: %i\n", graphic.function, graphic.rangem, graphic.rangeM, graphic.incremt);
+          viewGraphicFunction(&graphic);
+          return result;
         }
-        printf("Username: %s Fecha: %s\n", userGraphic.Username, graphic.date);
-        printf("f(x) = %s Rango: %i a %i. Incremento: %i\n", graphic.function, graphic.rangem, graphic.rangeM, graphic.incremt);
-        viewGraphicFunction(&graphic);
-        return result;
       }
     }
     lineWithData++;
@@ -1605,11 +1692,11 @@ int findAllGraphics(Users *user, int result, int defaul)
 
   if (defaul == 1)
   {
-    qsort(graphics, numGraphics, sizeof(Graphics), compareAscending);
+    sortByDate(graphics, numGraphics);
   }
-  if (defaul == 2)
+  else if (defaul == 2)
   {
-    qsort(graphics, numGraphics, sizeof(Graphics), compareDescending);
+    sortByDateDescending(graphics, numGraphics);
   }
 
   printAccess(user, graphics, defaul, numGraphics);
@@ -1722,7 +1809,7 @@ int printAccess(Users *user, Graphics *graphic, int order, int numGraphics)
   }
   else
   {
-    for (int i = numGraphics - 1; i >= 0; i--)
+    for (int i = 0; i < numGraphics; i++)
     {
       int quitPipe = strlen(graphic[i].date);
       graphic[i].date[quitPipe - 1] = '\0';
@@ -1745,6 +1832,7 @@ int printAccess(Users *user, Graphics *graphic, int order, int numGraphics)
 int removeGraphic(Users *user, int result, int defaul)
 {
   FILE *graphicsDb = fopen("dbgraphics.txt", "r");
+  int graphicID = 0;
 
   if (!graphicsDb)
   {
@@ -1754,51 +1842,82 @@ int removeGraphic(Users *user, int result, int defaul)
 
   Graphics graphic;
 
-  printf("Ingrese el numero de referencia de la grafica que desea eliminar: ");
-  scanf("%i", &graphic.ID);
-  getchar();
+  if (!defaul)
+  {
+    printf("Ingrese el numero de referencia de la grafica que desea eliminar: ");
+    scanf("%i", &graphicID);
+    getchar();
+  }
 
-  char firstPartRegisterDb[123] = "";
-  char secendPartRegisterDb[8] = "";
+  char registerDb[132] = "";
   char tempDataBase[10000] = "";
   int stopPrint = 1;
   int lineWithData = 1;
 
-  while (fgets(firstPartRegisterDb, sizeof(firstPartRegisterDb), graphicsDb))
+  if (!defaul)
   {
-    int userID = 0;
-    sscanf(firstPartRegisterDb, "- %i  -", &userID);
-
-    int graphicID = 0;
-    fgets(secendPartRegisterDb, sizeof(secendPartRegisterDb), graphicsDb);
-    sscanf(secendPartRegisterDb, " %i  -", &graphicID);
-
-    if (lineWithData > 3 && (lineWithData % 2) == 0)
+    while (fgets(registerDb, sizeof(registerDb), graphicsDb))
     {
-      if (!(graphicID == graphic.ID && userID == user->ID))
+      sscanf(registerDb, "- %i - %8s - %30s - %i - %i - %i - %i", &graphic.UsernameID, graphic.date, graphic.function, &graphic.rangem, &graphic.rangeM, &graphic.incremt, &graphic.ID);
+
+      if (lineWithData > 3 && (lineWithData % 2) == 0)
       {
-        strcat(tempDataBase, firstPartRegisterDb);
-        strcat(tempDataBase, secendPartRegisterDb);
-        stopPrint++;
+        if (graphicID == graphic.ID && graphic.UsernameID == user->ID)
+        {
+          strcat(tempDataBase, "-             -            -                                -                    -                    -                    -     -\n");
+          strcat(tempDataBase, "----------------------------------------------------------------------------------------------------------------------------------\n");
+          if (!defaul)
+            stopPrint = 0;
+        }
+        else
+        {
+          strcat(tempDataBase, registerDb);
+          stopPrint++;
+        }
       }
-      else
+      if (lineWithData == 2)
       {
-        strcat(tempDataBase, "-             -            -                                -                    -                    -                    -     -\n");
+        strcat(tempDataBase, "- UsernameID  - Date       - Graphic                        - Rangom             - RangoM             - Incremt            - ID  -\n");
+      }
+      if ((lineWithData % 2) == 1 && stopPrint)
+      {
         strcat(tempDataBase, "----------------------------------------------------------------------------------------------------------------------------------\n");
-        stopPrint = 0;
       }
+      lineWithData++;
     }
-
-    if (lineWithData == 2)
+  }
+  else
+  {
+    while (fgets(registerDb, sizeof(registerDb), graphicsDb))
     {
-      strcat(tempDataBase, "- UsernameID  - Date       - Graphic                        - Rangom             - RangoM             - Incremt            - ID  -\n");
-    }
+      sscanf(registerDb, "- %i - %8s - %30s - %i - %i - %i - %i", &graphic.UsernameID, graphic.date, graphic.function, &graphic.rangem, &graphic.rangeM, &graphic.incremt, &graphic.ID);
 
-    if ((lineWithData % 2) == 1 && stopPrint)
-    {
-      strcat(tempDataBase, "----------------------------------------------------------------------------------------------------------------------------------\n");
+      if (lineWithData > 3 && (lineWithData % 2) == 0)
+      {
+        if (graphic.UsernameID == user->ID)
+        {
+          strcat(tempDataBase, "-             -            -                                -                    -                    -                    -     -\n");
+          strcat(tempDataBase, "----------------------------------------------------------------------------------------------------------------------------------\n");
+          stopPrint = 0;
+        }
+        else
+        {
+          strcat(tempDataBase, registerDb);
+          stopPrint++;
+        }
+      }
+
+      if (lineWithData == 2)
+      {
+        strcat(tempDataBase, "- UsernameID  - Date       - Graphic                        - Rangom             - RangoM             - Incremt            - ID  -\n");
+      }
+
+      if ((lineWithData % 2) == 1 && stopPrint)
+      {
+        strcat(tempDataBase, "----------------------------------------------------------------------------------------------------------------------------------\n");
+      }
+      lineWithData++;
     }
-    lineWithData++;
   }
 
   fclose(graphicsDb);
@@ -1933,6 +2052,7 @@ int viewGraphicFunction(Graphics *graphic)
   }
 
   char monomial[10];
+
   int xValues[count];
   int yValues[count];
 
@@ -1966,7 +2086,7 @@ int controlValues(int xValues[], int yValues[], int size)
     yValuesSort[i] = yValues[i];
   }
 
-  selectionSort(yValuesSort, size);
+  quicksort(yValuesSort, 0, size - 1);
   validateQuadrants(&InfoGraphic, xValues, yValuesSort, size);
   selectGraphicPosible(&InfoGraphic, xValues, yValues, yValuesSort, size);
 }
@@ -1983,7 +2103,6 @@ int selectGraphicPosible(GraphicInformation *Info, int xValues[], int yValues[],
   {
     obtainRatioAxis(Info, xValues, yValuesOrdered, size, 1);
     obtainCoordinates(Info, xValues, yValues, yValuesOrdered, size);
-    // Info->itsUsed.quadrantsOne = Info->itsUsed.quadrantsTwo = Info->itsUsed.quadrantsThree = Info->itsUsed.quadrantsFourt = 4;
   }
   else if (Info->itsUsed.quadrantsOne && Info->itsUsed.quadrantsTwo)
   {
@@ -2034,40 +2153,62 @@ int selectGraphicPosible(GraphicInformation *Info, int xValues[], int yValues[],
     obtainCoordinates(Info, xValues, yValues, yValuesOrdered, size);
   }
 
-  // imprimirDatos(Info, size);
-
   printf("Presione enter para continuar\n");
   getchar();
 
   // Llamamos a la graficadora
-  graficadora(Info, size);
-
-  // ! Llamar a la funcion que grafica
+  graphicater(Info, size);
 
   return 0;
+};
+
+/** Intercambia los valores de dos variables enteras.
+ * @param a: Puntero al primer entero.
+ * @param b: Puntero al segundo entero.
+ */
+void swap(int *a, int *b)
+{
+  int temp = *a;
+  *a = *b;
+  *b = temp;
 }
 
-/** Ordena un arreglo de enteros utilizando el algoritmo de ordenación Quicksort.
- * @param array almacena el arreglo que se desea ordenar.
- * @param low almacena el índice más bajo del rango a ordenar.
- * @param high almacena el índice más alto del rango a ordenar.
- * @return no devuelve nada, solo altera un arreglo ordenandolo de menor a mayor.
+/** Realiza la partición del arreglo en torno a un pivote.
+ * Coloca los elementos menores que el pivote a su izquierda y los elementos mayores a su derecha.
+ * @param arr: Arreglo de enteros a ser particionado.
+ * @param low: Índice inferior del subarreglo a ser particionado.
+ * @param high: Índice superior del subarreglo a ser particionado.
+ * @return: Índice del pivote después de la partición.
  */
-int selectionSort(int arr[], int size)
+int partition(int arr[], int low, int high)
 {
-  for (int i = 0; i < size - 1; i++)
+  int pivot = arr[high];
+  int i = (low - 1);
+
+  for (int j = low; j <= high - 1; j++)
   {
-    int minIndex = i;
-    for (int j = i + 1; j < size; j++)
+    if (arr[j] <= pivot)
     {
-      if (arr[j] < arr[minIndex])
-      {
-        minIndex = j;
-      }
+      i++;
+      swap(&arr[i], &arr[j]);
     }
-    int temp = arr[minIndex];
-    arr[minIndex] = arr[i];
-    arr[i] = temp;
+  }
+  swap(&arr[i + 1], &arr[high]);
+  return (i + 1);
+}
+
+/** Implementa el algoritmo de Quicksort para ordenar un arreglo de enteros en orden ascendente.
+ * @param arr: Arreglo de enteros a ser ordenado.
+ * @param low: Índice inferior del subarreglo a ser ordenado.
+ * @param high: Índice superior del subarreglo a ser ordenado.
+ */
+void quicksort(int arr[], int low, int high)
+{
+  if (low < high)
+  {
+    int pivotIndex = partition(arr, low, high);
+    quicksort(arr, low, pivotIndex - 1);
+    quicksort(arr, pivotIndex + 1, high);
   }
 }
 
@@ -2119,36 +2260,28 @@ int obtainRatioAxis(GraphicInformation *Info, int xValues[], int yValues[], int 
 
   if (notSearch == 1)
   {
-    if (abs(yValues[0]) < yValues[size - 1])
+    if (abs(yValues[0]) > yValues[size - 1])
     {
-      float valueOne = abs(yValues[0]) * 1.0;
-      float valueTwo = yValues[size - 1] * 1.0;
-      float axisOne = valueOne / valueTwo * 1.0;
-      float axisZero = (1 - (valueOne / valueTwo)) * 1.0;
-      Info->axisSize.yAxis[1] = axisOne * 640;
-      Info->axisSize.yAxis[0] = axisZero * 640;
+      float valueOne = abs(yValues[0]);
+      float valueTwo = yValues[size - 1];
+      float axisOne = valueTwo / valueOne * 1.0;
+      Info->axisSize.yAxis[0] = axisOne * 640;
+    }
+    else if (abs(yValues[0]) < yValues[size - 1])
+    {
+      float valueOne = abs(yValues[0]);
+      float valueTwo = yValues[size - 1];
+      float axisOne = 1 - (valueOne / valueTwo * 1.0);
+      Info->axisSize.yAxis[0] = axisOne * 640;
     }
     else
     {
-      float valueOne = abs(yValues[0]) * 1.0;
-      float valueTwo = yValues[size - 1] * 1.0;
-      float axisZero = valueTwo / valueOne * 1.0;
-      float axisOne = (1 - (valueOne / valueTwo)) * 1.0;
-      Info->axisSize.yAxis[1] = axisOne * 640;
-      Info->axisSize.yAxis[0] = axisZero * 640;
-    }
-
-    if (Info->axisSize.yAxis[0] == 640 || Info->axisSize.yAxis[0] == 0)
-    {
-      Info->axisSize.yAxis[1] = 320;
       Info->axisSize.yAxis[0] = 320;
     }
   }
-
   Info->intervalAxisX = 640 / (size - 1);
+  Info->axisSize.yAxis[1] = 640 - Info->axisSize.yAxis[0];
   obtainZeroZero(Info, xValues, yValues, size, notSearch);
-
-  return 0;
 }
 
 /** Se encarga de obtener las coordenadas donde se encuentra la intersecion entre los ejes del plano:
@@ -2181,52 +2314,20 @@ int obtainZeroZero(GraphicInformation *Info, int xValues[], int yValues[], int s
   int posZero = 0;
   for (int i = 0; i < size; i++)
   {
-    if (xValues[i] == 0)
+    if (xValues[i] <= 0)
     {
       existZero = 1;
-      i = 500;
+      posZero = i;
     }
-    posZero++;
     distansUntilZero++;
   }
 
   if (existZero)
   {
-    Info->center.xCenter = Info->intervalAxisX * (distansUntilZero - 1);
+    Info->center.xCenter = Info->intervalAxisX * posZero;
     return 0;
   }
-
-  int preZero;
-  int postZero;
-
-  for (int i = 0; i <= size; i++)
-  {
-    if (xValues[i] < 0)
-    {
-      if (xValues[i + 1] > 0)
-      {
-        preZero = xValues[i];
-        postZero = xValues[i + 1];
-        i = 500;
-      }
-    }
-  }
-
-  int tempPreZero = preZero;
-  distansUntilZero = 0;
-  for (int i = 0; i < (abs(preZero) + postZero); i++)
-  {
-    if (tempPreZero == 0)
-    {
-      i = 500;
-    }
-    tempPreZero++;
-    distansUntilZero++;
-  }
-  Info->center.xCenter = (Info->intervalAxisX / (abs(preZero) + postZero)) * distansUntilZero;
-
-  return 0;
-}
+};
 
 /** Se encarga de generar pares de coordenadas en escala e ingresarlas en una estructura:
  * @param Info estructura de informacion grafica para almacenar la informacion en ella.
@@ -2239,14 +2340,6 @@ int obtainCoordinates(GraphicInformation *Info, int xValues[], int yValues[], in
 {
   for (int i = 0; i < size; i++)
   {
-    if (yValues[i] < 0)
-    {
-      int axisY = Info->center.yCenter * yValues[i] / yValuesOrdered[0];
-      Info->point[i].x = Info->intervalAxisX * i;
-      Info->point[i].y = abs((-1 * axisY) - Info->center.yCenter);
-      Info->coord[i].valueX = xValues[i];
-      Info->coord[i].valueY = yValues[i];
-    }
     if (yValues[i] >= 0)
     {
       int axisY = Info->center.yCenter * yValues[i] / yValuesOrdered[size - 1];
@@ -2255,111 +2348,27 @@ int obtainCoordinates(GraphicInformation *Info, int xValues[], int yValues[], in
       Info->coord[i].valueX = xValues[i];
       Info->coord[i].valueY = yValues[i];
     }
+    if (yValues[i] < 0)
+    {
+      int axisY = (640 - Info->center.yCenter) * yValues[i] / yValuesOrdered[0];
+      Info->point[i].x = Info->intervalAxisX * i;
+      Info->point[i].y = abs((1 * axisY) + Info->center.yCenter);
+      Info->coord[i].valueX = xValues[i];
+      Info->coord[i].valueY = yValues[i];
+    }
+    Info->point[i].x = Info->intervalAxisX * i;
+    Info->coord[i].valueX = xValues[i];
+    Info->coord[i].valueY = yValues[i];
   }
-
-  printf("|  x  |  y  |\n");
-  for (int i = 0; i < size; i++)
-  {
-    printf("|  %i  |  %i  |\n", xValues[i], yValues[i]);
-  }
-
-  printf("DATOS PROCESADOS\n");
-
-  printf("|  x    |  y    |\n");
-  for (int i = 0; i < size; i++)
-  {
-    printf("|  %ipx  |  %ipx  |\n", Info->intervalAxisX * i, Info->point[i].y);
-  }
-}
-
-/** Se enecarga de mostrar por consola el menu del usuario root:
- * @param root informacion del usuario root para mostrar su nombre en el menu.
- * @return no devuelve nada, solo se encarga de mostrar por consola el menu.
- */
-int menuRootUser(Users *root)
-{
-  printf("Aplicativo - Graficador - UTP\n");
-  printf("Menu principal para usuario: %s\n", root->Username);
-  printf("0. Salir del aplicativo\n");
-  printf("1. Crear nuevo usuario\n");
-  printf("2. Borrar usuario\n");
-  printf("3. Listar accesos por usuario\n");
-  printf("4. Listar accesos todos los usuarios\n");
-  printf("5. Imprimir grafico por referencia\n");
-  printf("6. Cambiar password del usuario root\n");
-  printf("7. Cambiar password de un usuario\n");
 };
-
-/** Se encarga de mostrar por consola el menu del usuario basico:
- * @param user informacion del usuario que ha iniciado sesion para mostrarla
- * en el menu.
- * @return no devuelve nada, solo se encarga de mostrar por consola el menu.
- */
-int menuNormalUser(Users *user)
-{
-  printf("Aplicativo - Graficador - UTP\n");
-  printf("Menu principal para usuario: %s\n", user->Username);
-  printf("0. Salir del aplicativo\n");
-  printf("1. Crear un nuevo grafico\n");
-  printf("2. Borrar un grafico existente\n");
-  printf("3. Listar accesos\n");
-  printf("4. Imprimir grafico por referencia\n");
-  printf("5. Cambiar password del usuario %s\n", user->Username);
-}
-
-/** Se encarga de ejecutar la opcion que el usuario root haya querido iniciar:
- * @param root contiene la informacion del usuario root.
- * @param option almacena la opcion que el usuario root haya elegido.
- * @return devuelve un 1 si la funcion se ejecuto correctamente, devuelve un 0
- * si no se pudo completar algun proceso.
- */
-int handleRootUserOption(Users *root, int option)
-{
-  MenuOption MenuOptions[] = {
-      {createNewUser, root, 1, 0},
-      {removeUser, root, 1, 0},
-      {viewAccessUser, root, 2, 0},
-      {viewAccessUsers, root, 1, 0},
-      {initGraphicate, root, 1, 2},
-      {changePassword, root, 1, 0},
-      {changePasswordSelectAdmin, root, 1, 0}};
-
-  system("clear");
-  MenuOption Selected = MenuOptions[option - 1];
-  Selected.function(Selected.nameUser, Selected.result, Selected.defaul);
-  return 0;
-};
-
-/** Se enecarga de ejecutar la opcion que el usuario normal haya querido iniciar:
- * @param root contiene la informacion del usuario normal.
- * @param option almacena la opcion que el usuario normal haya elegido.
- * @return devuelve un 1 si la funcion se ejecuto correctamente, devuelve un 0
- * si no se pudo completar algun proceso.
- */
-int handleNormalUserOption(Users *user, int option)
-{
-  MenuOption MenuOptions[] = {
-      {createNewGraphic, user, 1, 0},
-      {removeGraphic, user, 1, 0},
-      {viewAccessUser, user, 1, 0},
-      {initGraphicate, user, 1, 0},
-      {changePassword, user, 1, 0}};
-
-  system("clear");
-  MenuOption Selected = MenuOptions[option - 1];
-  Selected.function(Selected.nameUser, Selected.result, Selected.defaul);
-  system("clear");
-  return 0;
-};
-
-/*------------------------------------------------------------------------------------------------*/
 
 /** Se encarga liberar la memoria y destruir los objetos generados por sdl2 antes de acabar el programa:
- * @param api estructura para almacenar la informacion necesaria para crear una grafica
+ * @param info estructura para almacenar la informacion necesaria para crear una grafica
  * @return 1 si hubo un error al generarse la grafica y 0 si se generó correctamente
  */
-int graficadora(GraphicInformation *api, int size)
+int graphicater(GraphicInformation *info, int size)
 {
+  imprimirDatos(info, size);
   // Inicializamos SDL2
   if (SDL_Init(SDL_INIT_VIDEO) != 0)
   {
@@ -2400,25 +2409,22 @@ int graficadora(GraphicInformation *api, int size)
   }
 
   // Color blanco al fondo del plano
-  SDL_SetRenderDrawColor(plano, 255, 255, 255, 255);
+  SDL_SetRenderDrawColor(plano, 234, 250, 241, 255);
 
   // Limpiamos la ventana
   SDL_RenderClear(plano);
 
   // Color negro a las lineas a dibujar
-  SDL_SetRenderDrawColor(plano, 0, 0, 0, 255);
 
-  drawFuction(plano, font, api->center, api->point, size, api->coord);
-
+  drawFuction(plano, font, info->center, info->point, size, info->coord, info->totalIntervalX);
   SDL_RenderPresent(plano);
 
   int close = 0;
-
   while (!close)
   {
     if (SDL_PollEvent(&event) && event.type == SDL_QUIT)
     {
-      close++;
+      close = 1;
     }
   }
 
@@ -2441,32 +2447,7 @@ void stopSDL(SDL_Window *window, SDL_Renderer *render, TTF_Font *font)
   SDL_Quit();
   TTF_CloseFont(font);
   TTF_Quit();
-}
-
-// TODO: FUNCION TEMPORAL PARA VER LOS VALORES INTERNOS DEL API
-void imprimirDatos(GraphicInformation *datos, int size)
-{
-  printf("Datos de GraphicInformation:\n");
-  printf("Quadrants:\n");
-  printf("  QuadrantsOne: %d\n", datos->itsUsed.quadrantsOne);
-  printf("  QuadrantsTwo: %d\n", datos->itsUsed.quadrantsTwo);
-  printf("  QuadrantsThree: %d\n", datos->itsUsed.quadrantsThree);
-  printf("  QuadrantsFour: %d\n", datos->itsUsed.quadrantsFourt);
-  printf("AxisSize:\n");
-  printf("  xAxis[0]: %d\n", datos->axisSize.xAxis[0]);
-  printf("  xAxis[1]: %d\n", datos->axisSize.xAxis[1]);
-  printf("  yAxis[0]: %d\n", datos->axisSize.yAxis[0]);
-  printf("  yAxis[1]: %d\n", datos->axisSize.yAxis[1]);
-  printf("CenterGraphic:\n");
-  printf("  xCenter: %d\n", datos->center.xCenter);
-  printf("  yCenter: %d\n", datos->center.yCenter);
-  printf("Presione enter para avanzar\n");
-  for (int i = 0; i < size; i++)
-  {
-    printf("  Punto %d - x: %d, y: %d\n", i + 1, datos->coord[i].valueX, datos->coord[i].valueY);
-  }
-
-  getchar();
+  return 0;
 }
 
 /** Función encargada de dibujar los cuadrantes, sus divisiones y la grafica:
@@ -2476,10 +2457,15 @@ void imprimirDatos(GraphicInformation *datos, int size)
  * @param size, el tamaño del todos los vectores destinados a graficar
  * @return no devuelve nada
  */
-void drawFuction(SDL_Renderer *plano, TTF_Font *font, CenterGraphic center, Point point[], int size, CoordPlanes coor[])
+void drawFuction(SDL_Renderer *plano, TTF_Font *font, CenterGraphic center, Point point[], int size, CoordPlanes coor[], int incrementX)
 {
+
+  SDL_SetRenderDrawColor(plano, 20, 90, 50, 255);
   // Graficamos el eje Y
-  SDL_RenderDrawLine(plano, center.xCenter, 0, center.xCenter, 640);
+  if (!((coor[0].valueX > 0 && coor[size - 1].valueX > 0) || (coor[0].valueX < 0 && coor[size - 1].valueX < 0)))
+  {
+    SDL_RenderDrawLine(plano, center.xCenter, 0, center.xCenter, 640);
+  }
 
   // Graficamos el eje X
   SDL_RenderDrawLine(plano, 0, center.yCenter, 640, center.yCenter);
@@ -2487,19 +2473,39 @@ void drawFuction(SDL_Renderer *plano, TTF_Font *font, CenterGraphic center, Poin
   // Hacemos iteraciones para realizar las divisiones entre los ejes
   for (int i = 0; i <= size; i++)
   {
-    // Vamos a graficar las divisones del eje X
-    SDL_RenderDrawLine(plano, point[i].x, center.yCenter - 5, point[i].x, center.yCenter + 5);
-    // Ingresamos los valores de esas divisiones
-    numbers(plano, font, point[i].x, center.yCenter - 20, coor[i].valueX);
-
-    // Vamos a graficar las divisones del eje Y
-    SDL_RenderDrawLine(plano, center.xCenter - 5, point[i].y, center.xCenter + 5, point[i].y);
-    // Ingresamos los valores de esas divisiones
-    numbers(plano, font, center.xCenter, point[i].y, coor[i].valueY);
+    if (size - 1 == i)
+    {
+      // Vamos a graficar las divisones del eje X
+      SDL_SetRenderDrawColor(plano, 20, 90, 50, 255);
+      SDL_RenderDrawLine(plano, point[i].x - 10, center.yCenter - 5, point[i].x - 10, center.yCenter + 5);
+      numbers(plano, font, point[i].x - 10, center.yCenter - 20, coor[i].valueX);
+      // Vamos a graficar las divisones del eje Y
+      SDL_SetRenderDrawColor(plano, 20, 90, 50, 255);
+      SDL_RenderDrawLine(plano, center.xCenter - 5, point[i].y - 10, center.xCenter + 5, point[i].y - 10);
+      numbers(plano, font, center.xCenter, point[i].y - 10, coor[i].valueY);
+    }
+    else
+    {
+      // Vamos a graficar las divisones del eje X
+      SDL_SetRenderDrawColor(plano, 20, 90, 50, 255);
+      SDL_RenderDrawLine(plano, point[i].x, center.yCenter - 5, point[i].x, center.yCenter + 5);
+      numbers(plano, font, point[i].x, center.yCenter - 20, coor[i].valueX);
+      // Vamos a graficar las divisones del eje Y
+      SDL_SetRenderDrawColor(plano, 20, 90, 50, 255);
+      SDL_RenderDrawLine(plano, center.xCenter - 5, point[i].y, center.xCenter + 5, point[i].y);
+      numbers(plano, font, center.xCenter, point[i].y, coor[i].valueY);
+    }
   }
 
   // Dibujamos la grafica
-  SDL_RenderDrawLines(plano, point, size);
+  SDL_Point sdlPoints[size];
+  for (int i = 0; i < size; i++)
+  {
+    sdlPoints[i].x = point[i].x;
+    sdlPoints[i].y = point[i].y;
+  }
+  SDL_SetRenderDrawColor(plano, 100, 30, 22, 255);
+  SDL_RenderDrawLines(plano, sdlPoints, size);
 }
 
 /** Función encargada de renderizar el valor de las divisiones:
@@ -2559,3 +2565,83 @@ void numbers(SDL_Renderer *render, TTF_Font *font, int x, int y, int num)
   SDL_DestroyTexture(textTexture);
   SDL_FreeSurface(textSurface);
 }
+
+/** Se enecarga de mostrar por consola el menu del usuario root:
+ * @param root informacion del usuario root para mostrar su nombre en el menu.
+ * @return no devuelve nada, solo se encarga de mostrar por consola el menu.
+ */
+int menuRootUser(Users *root)
+{
+  printf("Aplicativo - Graficador - UTP\n");
+  printf("Menu principal para usuario: %s\n", root->Username);
+  printf("0. Salir del aplicativo\n");
+  printf("1. Crear nuevo usuario\n");
+  printf("2. Borrar usuario\n");
+  printf("3. Listar accesos por usuario\n");
+  printf("4. Listar accesos todos los usuarios\n");
+  printf("5. Imprimir grafico por referencia\n");
+  printf("6. Cambiar password del usuario root\n");
+  printf("7. Cambiar password de un usuario\n");
+};
+
+/** Se encarga de mostrar por consola el menu del usuario basico:
+ * @param user informacion del usuario que ha iniciado sesion para mostrarla
+ * en el menu.
+ * @return no devuelve nada, solo se encarga de mostrar por consola el menu.
+ */
+int menuNormalUser(Users *user)
+{
+  printf("Aplicativo - Graficador - UTP\n");
+  printf("Menu principal para usuario: %s\n", user->Username);
+  printf("0. Salir del aplicativo\n");
+  printf("1. Crear un nuevo grafico\n");
+  printf("2. Borrar un grafico existente\n");
+  printf("3. Listar accesos\n");
+  printf("4. Imprimir grafico por referencia\n");
+  printf("5. Cambiar password del usuario %s\n", user->Username);
+}
+
+/** Se encarga de ejecutar la opcion que el usuario root haya querido iniciar:
+ * @param root contiene la informacion del usuario root.
+ * @param option almacena la opcion que el usuario root haya elegido.
+ * @return devuelve un 1 si la funcion se ejecuto correctamente, devuelve un 0
+ * si no se pudo completar algun proceso.
+ */
+int handleRootUserOption(Users *root, int option)
+{
+  MenuOption MenuOptions[] = {
+      {createNewUser, root, 1, 0},
+      {removeUser, root, 1, 1},
+      {viewAccessUser, root, 2, 0},
+      {viewAccessUsers, root, 1, 0},
+      {initGraphicate, root, 1, 2},
+      {changePassword, root, 1, 0},
+      {changePasswordSelectAdmin, root, 1, 0}};
+
+  system("clear");
+  MenuOption Selected = MenuOptions[option - 1];
+  Selected.function(Selected.nameUser, Selected.result, Selected.defaul);
+  return 0;
+};
+
+/** Se enecarga de ejecutar la opcion que el usuario normal haya querido iniciar:
+ * @param root contiene la informacion del usuario normal.
+ * @param option almacena la opcion que el usuario normal haya elegido.
+ * @return devuelve un 1 si la funcion se ejecuto correctamente, devuelve un 0
+ * si no se pudo completar algun proceso.
+ */
+int handleNormalUserOption(Users *user, int option)
+{
+  MenuOption MenuOptions[] = {
+      {createNewGraphic, user, 1, 0},
+      {removeGraphic, user, 1, 0},
+      {viewAccessUser, user, 1, 0},
+      {initGraphicate, user, 1, 0},
+      {changePassword, user, 1, 0}};
+
+  system("clear");
+  MenuOption Selected = MenuOptions[option - 1];
+  Selected.function(Selected.nameUser, Selected.result, Selected.defaul);
+  system("clear");
+  return 0;
+};
