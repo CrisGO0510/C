@@ -132,7 +132,7 @@ void ingresaLetra(char palabra[], char palabraOculta[], int *inte)
             impAhorcado(1, palabraOculta);
             printf("\nTe has quedado sin intentos\n");
 
-        } // Fin del if
+        } // Fin del if 
 
     } // Fin del if
 }
