@@ -1,3 +1,11 @@
+/*
+ * Fecha de publicación: 2023-09-01
+ * Hora: 14:16
+ * Autor: Ing(c) Cristhian Giraldo Orozco
+ * Nombre del lenguaje: C 201710
+ * Descripción del programa: Programa que implementa un menú para interactuar con un ABB
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 
