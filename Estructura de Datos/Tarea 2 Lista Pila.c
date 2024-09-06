@@ -3,44 +3,41 @@
 
 typedef struct node
 {
-    int info;
+    int value;
     struct node *next;
 } node;
 
-void insertInfo(node **, int);
+void push(node **, int);
+int pop(node **);
 void impList(node *);
-int extractHeadList(node **);
-void freeList(node **);
+void reverb(node **);
 int countElements(node *);
-int voidList(node *);
-void deleteElement(node **, int);
-void addElement(node **, int, int);
+void freeList(node **);
+int findValue(node *, int);
 
 int main()
 {
     node *list = NULL;
 
-    insertInfo(&list, 10);
-    insertInfo(&list, 40);
-    insertInfo(&list, 3);
-    insertInfo(&list, 20);
-    insertInfo(&list, 50);
+    push(&list, 10);
+    push(&list, 40);
+    push(&list, 3);
+    push(&list, 20);
+    push(&list, 50);
 
     impList(list);
-    // printf("Extraemos un nodo de la pila: %i\n", extractHeadList(&list));
+
+    int value = 4;
+    if (findValue(list, value)){
+        printf("El elemento %i se encuentra en la lista\n", value);
+    } else {
+        printf("El elemento %i NO se encuentra en la lista\n", value);
+
+    }
+
+    // reverb(&list);
+
     // impList(list);
-    // printf("La cantidad de nodos de la pila es: %i\n", countElements(list));
-
-    // while (voidList(list) == 0)
-    // {
-    //     printf("Extraemos un nodo de la pila: %i\n", extractHeadList(&list));
-    // }
-
-    // deleteElement(&list, 13);
-
-    addElement(&list, 3, 100);
-
-    impList(list);
 
     printf("Presione una tecla para finalizar...\n");
     getchar();
@@ -48,10 +45,16 @@ int main()
     return 0;
 }
 
-void insertInfo(node **head, int info)
+/**
+ * @brief Agrega un nuevo nodo al inicio de la lista.
+ * 
+ * @param head Puntero a un puntero al primer nodo de la lista.
+ * @param value Valor a almacenar en el nuevo nodo.
+ */
+void push(node **head, int value)
 {
     node *newNode = (node *)malloc(sizeof(node));
-    newNode->info = info;
+    newNode->value = value;
 
     if (head == NULL)
     {
@@ -65,25 +68,13 @@ void insertInfo(node **head, int info)
     }
 }
 
-void impList(node *head)
-{
-    node *reco = head;
-
-    if (head == NULL)
-        printf("La pila esta vacia.\n");
-    else
-    {
-        printf("Impresion de Lista tipo pila...\n");
-        while (reco != NULL)
-        {
-            printf("%i ", reco->info);
-            reco = reco->next;
-        }
-    }
-    printf("\n");
-}
-
-int extractHeadList(node **head)
+/**
+ * @brief Elimina el nodo al inicio de la lista y devuelve su valor.
+ * 
+ * @param head Puntero a un puntero al primer nodo de la lista.
+ * @return Valor del nodo eliminado o -1 si la lista está vacía.
+ */
+int pop(node **head)
 {
     if (*head == NULL)
     {
@@ -92,16 +83,67 @@ int extractHeadList(node **head)
     }
     else
     {
-        int informacion = (*head)->info;
+        int value = (*head)->value;
         node *tempList = *head;
 
         *head = (*head)->next;
 
         free(tempList);
-        return informacion;
+        return value;
     }
 }
 
+/**
+ * @brief Invierte el orden de los nodos en la lista.
+ * 
+ * @param head Puntero a un puntero al primer nodo de la lista.
+ */
+void reverb(node **head)
+{
+    if (*head == NULL)
+    {
+        return;
+    }
+
+    node *tempList = NULL;
+
+    int value = 0;
+    while (*head != NULL)
+    {
+        value = pop(head);
+        push(&tempList, value);
+    }
+
+    *head = tempList; 
+}
+
+/**
+ * @brief Imprime los valores de todos los nodos en la lista.
+ * 
+ * @param head Puntero al primer nodo de la lista.
+ */
+void impList(node *head)
+{
+    if (head == NULL){
+        printf("La pila esta vacia.\n");
+        return;
+    }
+    
+    printf("Impresion de Lista tipo pila...\n");
+    while (head != NULL)
+    {
+        printf("%i ", head->value);
+        head = head->next;
+    }
+
+    printf("\n");
+}
+
+/**
+ * @brief Libera la memoria de todos los nodos en la lista.
+ * 
+ * @param head Puntero a un puntero al primer nodo de la lista.
+ */
 void freeList(node **head)
 {
     node *currencyList = *head;
@@ -116,101 +158,45 @@ void freeList(node **head)
             currencyList = currencyList->next;
             free(tempList);
         }
-        head = NULL;
+        *head = NULL;
     }
 }
 
+/**
+ * @brief Valida si el elemento se encuentra en la lista
+ * 
+ * @param head Puntero al primer nodo de la lista.
+ * @param value elemento que vamos a buscar
+ * @return 0 = falso, 1 = verdadero
+ */
+int findValue(node *head, int value){
+    while (head != NULL)
+    {
+        if (head->value == value){
+            return 1;
+        }
+
+        head = head->next;
+    }
+
+    return 0;
+}
+
+
+/**
+ * @brief Cuenta el número de nodos en la lista.
+ * 
+ * @param head Puntero al primer nodo de la lista.
+ * @return Número de nodos en la lista.
+ */
 int countElements(node *head)
 {
-    node *reco = (node *)malloc(sizeof(node));
-    reco = head;
+    node *tempList = head;
     int cant = 0;
-    while (reco != NULL)
+    while (tempList != NULL)
     {
         cant++;
-        reco = reco->next;
+        tempList = tempList->next;
     }
     return cant;
-}
-
-int voidList(node *head)
-{
-    if (head == NULL)
-        return 1;
-    else
-        return 0;
-}
-
-/*
-// Función para eliminar un elemento de la lista por posición
-
-void deleteElement(node **head, int position)
-{
-    node *tempList = NULL;
-
-    while (*head != NULL)
-    {
-        if ((*head)->info != position)
-            insertInfo(&tempList, extractHeadList(head));
-        else
-            extractHeadList(head);
-    }
-
-    while (tempList != NULL)
-    {
-        insertInfo(head, extractHeadList(&tempList));
-    }
-
-    freeList(&tempList);
-}*/
-
-void deleteElement(node **head, int position)
-{
-    node *tempList = NULL;
-
-    int i = 0;
-
-    while (*head != NULL)
-    {
-        i++;
-        if (i != position)
-            insertInfo(&tempList, extractHeadList(head));
-        else
-            extractHeadList(head);
-    }
-
-    while (tempList != NULL)
-    {
-        insertInfo(head, extractHeadList(&tempList));
-    }
-
-    if (i != 0)
-        printf("La posicion ingresada no existe.\n");
-
-    freeList(&tempList);
-}
-
-// Función para agregar un elemento a la lista
-
-void addElement(node **head, int position, int data)
-{
-    node *tempList = NULL;
-
-    int i = 0;
-
-    while (*head != NULL)
-    {
-        i++;
-        if (i == position)
-            insertInfo(&tempList, data);
-        else
-            insertInfo(&tempList, extractHeadList(head));
-    }
-
-    while (tempList != NULL)
-    {
-        insertInfo(head, extractHeadList(&tempList));
-    }
-
-    freeList(&tempList);
 }

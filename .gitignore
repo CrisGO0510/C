@@ -1,0 +1,3 @@
+# Ignorar el directorio dist
+/dist/
+/.idx/
