@@ -13,6 +13,7 @@
         "limits": "cpp",
         "numbers": "cpp",
         "system_error": "cpp",
-        "cerrno": "cpp"
+        "cerrno": "cpp",
+        "stdbool.h": "c"
     }
 }
