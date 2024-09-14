@@ -11,11 +11,13 @@ void push(node **, int);
 int pop(node **);
 void impList(node *);
 void reverb(node **);
-int countElements(node *);
-void freeList(node **);
 int findValue(node *, int);
 int isSortedAscending(node *);
+void removeValue(node **, int);
+void addValue(node **, int, int);
+void splitList(node **, int, node **, node **);
 int compareLists(node *, node *);
+void freeList(node **);
 
 int main()
 {
@@ -28,22 +30,28 @@ int main()
     push(&list, 40);
     push(&list, 50);
 
-    push(&list2, 3);
-    push(&list2, 10);
-    push(&list2, 20);
-    push(&list2, 40);
-    push(&list2, 50);
+    // push(&list2, 3);
+    // push(&list2, 10);
+    // push(&list2, 20);
+    // push(&list2, 40);
+    // push(&list2, 50);
 
     impList(list);
-    impList(list2);
+    // impList(list2);
 
-    if (compareLists(list, list2)){
-        printf("Las listas son iguales\n");
-    } else {
-        printf("Las listas NO son iguales\n");
-    }
+    // if (compareLists(list, list2)){
+    //     printf("Las listas son iguales\n");
+    // } else {
+    //     printf("Las listas NO son iguales\n");
+    // }
 
     // reverb(&list);
+
+    // removeValue(&list, 20);
+
+    addValue(&list, 100, 2);
+
+    impList(list);
 
     // impList(list);
 
@@ -234,19 +242,70 @@ int compareLists(node *list1, node *list2){
 }
 
 /**
- * @brief Cuenta el número de nodos en la lista.
+ * @brief Saca de la pila el objeto X (si existe) y deja la pila con los objetos restantes en el mismo orden.
  * 
- * @param head Puntero al primer nodo de la lista.
- * @return Número de nodos en la lista.
+ * @param head Puntero a un puntero al primer nodo de la lista.
+ * @param value Valor a eliminar de la pila.
  */
-int countElements(node *head)
+void removeValue(node **head, int value)
 {
-    node *tempList = head;
-    int cant = 0;
-    while (tempList != NULL)
+    if (*head == NULL)
     {
-        cant++;
-        tempList = tempList->next;
+        return;
     }
-    return cant;
+
+    node *tempList = NULL;
+    int poppedValue = 0;
+
+    while (*head != NULL)
+    {
+        poppedValue = pop(head);
+        if (poppedValue != value)
+        {
+            push(&tempList, poppedValue);
+        }
+    }
+
+    reverb(&tempList);
+
+    *head = tempList;
+}
+
+void addValue(node **head, int value, int pos) {
+    if (*head == NULL || pos <= 0) {
+        push(head, value);
+        return;
+    }
+
+    node *auxList = NULL;
+    int count = 1;
+    int poppedValue = 0;
+
+    while (*head != NULL) {
+        poppedValue = pop(head);
+        if (count == pos) {
+            push(&auxList, value);
+        }
+        push(&auxList, poppedValue);
+        count++;
+    }
+
+    *head = auxList;
+}
+
+void splitList(node **head, int value, node **list1, node **list2) {
+    if (*head == NULL) {
+        return;
+    }
+
+    int poppedValue = 0;
+
+    while (*head != NULL) {
+        poppedValue = pop(head);
+        if (poppedValue > value) {
+            push(list1, poppedValue);
+        } else {
+            push(list2, poppedValue);
+        }
+    }
 }
