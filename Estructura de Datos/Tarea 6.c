@@ -25,24 +25,8 @@ void menu(node **);
 
 int main()
 {
-
     node *head = NULL;
-    insert2Tail(&head, 4);
-    insert2Head(&head, 1);
-    insert2Head(&head, 2);
-    insert2Head(&head, 3);
-
-    insert2Tail(&head, 5);
-    insert2Tail(&head, 5);
-    insert2Tail(&head, 4);
-
-    impList(head);
-
-    deleteDuplicate(&head, 4);
-
-    impList(head);
-
-    // menu(&head);
+    menu(&head);
 
     return 0;
 }
@@ -74,7 +58,7 @@ void impList(node *head)
  * @brief Inserta un nuevo nodo al inicio de la lista.
  *
  * @param head Puntero al primer nodo de la lista.
- * @param value Valor a insertar.
+ * @param value Valor a insertar en la lista.
  */
 void insert2Head(node **head, int value)
 {
