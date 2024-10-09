@@ -47,6 +47,7 @@ int main()
     return 0;
 }
 
+// Función que retorna la lista de vuelos desde un archivo
 Flight *getFlights(const char *nameArchive)
 {
     FILE *file = fopen(nameArchive, "r");
@@ -92,7 +93,7 @@ Flight *getFlights(const char *nameArchive)
         // Guardar el status
         newFlight->status = line[66];
 
-        newFlight->passenger = getPassengers("pasajeros.txt", newFlight->idFlight);
+        newFlight->passenger = getPassengers("PASAJEROS.txt", newFlight->idFlight);
         newFlight->next = NULL;
 
         // Enlazar el vuelo en la list
@@ -113,6 +114,7 @@ Flight *getFlights(const char *nameArchive)
     return first;
 }
 
+// Función que retorna la lista de pasajeros de un vuelo con respecto al ID del vuelo
 Passenger *getPassengers(const char *nameArchive, char idFlight[7])
 {
     FILE *file = fopen(nameArchive, "r");
@@ -185,27 +187,28 @@ void newFlight(Flight **listFlights)
     // Solicitar datos al usuario
     printf("Ingrese el ID del vuelo: ");
     scanf("%s", newFlight->idFlight);
-    fflush(stdin);
+    getchar();
 
     printf("Ingrese el origen del vuelo: ");
     scanf("%s", newFlight->from);
-    fflush(stdin);
+    getchar();
 
     printf("Ingrese el destino del vuelo: ");
     scanf("%s", newFlight->to);
-    fflush(stdin);
+    getchar();
 
     printf("Ingrese la matrícula del avión: ");
     scanf("%s", newFlight->registration);
-    fflush(stdin);
+    getchar();
 
     printf("Ingrese el nombre del piloto: ");
     fgets(newFlight->pilot, sizeof(newFlight->pilot), stdin);
     newFlight->pilot[strcspn(newFlight->pilot, "\n")] = '\0'; // Remove newline character
+    // getchar();
 
     printf("Ingrese el número de celular del piloto: ");
     scanf("%s", newFlight->cellphone);
-    fflush(stdin);
+    getchar();
 
     newFlight->status = '0';     // 0 = Programado, 1 = Realizado
     newFlight->passenger = NULL; // Lista de pasajeros inicial vacía
@@ -235,7 +238,7 @@ void newPassenger(Flight *listFlights)
     char idFlight[7];
     printf("Ingrese el ID del vuelo al que se va a añadir el pasajero: ");
     scanf("%s", idFlight);
-    fflush(stdin);
+    getchar();
 
     // Buscar el vuelo correspondiente
     Flight *currentFlight = listFlights;
@@ -254,17 +257,16 @@ void newPassenger(Flight *listFlights)
     Passenger *newPassenger = (Passenger *)malloc(sizeof(Passenger));
     printf("Ingrese el número de cédula del pasajero: ");
     scanf("%s", newPassenger->cc);
-    fflush(stdin);
+    getchar();
 
     printf("Ingrese el nombre del pasajero: ");
     fgets(newPassenger->name, sizeof(newPassenger->name), stdin);
     newPassenger->name[strcspn(newPassenger->name, "\n")] = '\0'; // Remove newline character
-    fflush(stdin);
-
+    // getchar();
 
     printf("Ingrese el número de celular del pasajero: ");
     scanf("%s", newPassenger->cellphone);
-    fflush(stdin);
+    getchar();
 
     newPassenger->status = '1'; // No está a bordo por defecto
     strncpy(newPassenger->idFlight, currentFlight->idFlight, sizeof(newPassenger->idFlight) - 1);
@@ -402,9 +404,10 @@ void approveStatusPassenger(Passenger *passenger, const char *cc)
 // Función para limpiar pantalla
 void clearScreen()
 {
-    // system("cls||clear");
+    system("cls||clear");
 }
 
+// Función para mostrar el menú
 void menu()
 {
     Flight *listFlights = getFlights("Vuelos.txt");
@@ -442,7 +445,7 @@ void menu()
             char idFlight[7];
             printf("Ingrese el ID del vuelo: ");
             scanf("%s", idFlight);
-            fflush(stdin);
+            getchar();
 
             printPassengersByFlight(listFlights, idFlight);
             break;
@@ -453,7 +456,7 @@ void menu()
             char cc[11];
             printf("Ingrese el número de cédula: ");
             scanf("%s", cc);
-            fflush(stdin);
+            getchar();
 
             printPassengerInFlightByDocument(listFlights, cc);
             break;
@@ -464,7 +467,7 @@ void menu()
             char idFlight[7];
             printf("Ingrese el ID del vuelo a registrar como realizado: ");
             scanf("%s", idFlight);
-            fflush(stdin);
+            getchar();
 
             Flight *currentFlight = listFlights;
             while (currentFlight != NULL)
@@ -487,7 +490,7 @@ void menu()
             char cc[11];
             printf("Ingrese el número de cédula del pasajero: ");
             scanf("%s", cc);
-            fflush(stdin);
+            getchar();
 
             Flight *currentFlight = listFlights;
             int found = 0;
@@ -527,7 +530,7 @@ void menu()
             printf("Opción inválida, intente nuevamente.\n");
         }
 
-        fflush(stdin);
+        getchar();
 
         printf("Presione Enter para continuar...");
         getchar();
@@ -536,10 +539,11 @@ void menu()
     FILE *file = fopen("PASAJEROS.txt", "w"); // Limpiamos el archivo primero
     if (file != NULL)
         fclose(file);
-        
+
     saveFlights(listFlights);
 }
 
+// Función para guardar la información de los vuelos en el archivo correspondiente
 void saveFlights(Flight *head)
 {
     FILE *file = fopen("Vuelos.txt", "w");
@@ -570,6 +574,7 @@ void saveFlights(Flight *head)
     printf("Información de vuelos guardada en %s\n", "Vuelos.txt");
 }
 
+// Función para guardar la información de los pasajeros en el archivo correspondiente
 void savePassengers(Passenger *head)
 {
     // Abre el archivo en modo de "adjuntar" para no sobrescribir el contenido anterior
@@ -588,8 +593,7 @@ void savePassengers(Passenger *head)
                 currentPassenger->cc,
                 currentPassenger->name,
                 currentPassenger->cellphone,
-                currentPassenger->status
-                );
+                currentPassenger->status);
 
         currentPassenger = currentPassenger->next; // Avanzar al siguiente pasajero
     }
