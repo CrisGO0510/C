@@ -15,6 +15,10 @@
         "system_error": "cpp",
         "cerrno": "cpp",
         "stdbool.h": "c",
-        "utility": "c"
-    }
+        "utility": "c",
+        "xstring": "cpp",
+        "abb.h": "c",
+        "avl.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }

@@ -13,7 +13,7 @@ typedef struct tree
 {
   int data;
   struct tree *left;
-  struct tree *rigth;
+  struct tree *right;
 } tree;
 
 typedef struct list
@@ -134,7 +134,7 @@ void printPiramid(tree *root, int level)
   if (root == NULL)
     return;
 
-  printPiramid(root->rigth, level + 1);
+  printPiramid(root->right, level + 1);
 
   for (int i = 0; i < level; i++)
     printf("xxx");
@@ -150,7 +150,7 @@ void insert(tree **root, int x)
   tree *newTree = (tree *)malloc(sizeof(tree));
   newTree->data = x;
   newTree->left = NULL;
-  newTree->rigth = NULL;
+  newTree->right = NULL;
   if (*root == NULL)
     *root = newTree;
   else
@@ -164,12 +164,12 @@ void insert(tree **root, int x)
       if (x < aux->data)
         aux = aux->left;
       else
-        aux = aux->rigth;
+        aux = aux->right;
     }
     if (x < currency->data)
       currency->left = newTree;
     else
-      currency->rigth = newTree;
+      currency->right = newTree;
   }
 }
 
@@ -180,7 +180,7 @@ void printIn(tree *aux)
   {
     printIn(aux->left);
     printf("%i-", aux->data);
-    printIn(aux->rigth);
+    printIn(aux->right);
   }
 }
 
@@ -190,7 +190,7 @@ int count_nodes(tree *root)
   if (root == NULL)
     return 0;
   else
-    return 1 + count_nodes(root->left) + count_nodes(root->rigth);
+    return 1 + count_nodes(root->left) + count_nodes(root->right);
 }
 
 //? Función para encontrar el valor mínimo
@@ -226,16 +226,16 @@ void delete_tree(tree **root, int data)
   if (data < (*root)->data)
     delete_tree(&((*root)->left), data);
   else if (data > (*root)->data)
-    delete_tree(&((*root)->rigth), data);
+    delete_tree(&((*root)->right), data);
   else
   {
     if ((*root)->left == NULL)
     {
-      tree *temp = (*root)->rigth;
+      tree *temp = (*root)->right;
       free(*root);
       *root = temp;
     }
-    else if ((*root)->rigth == NULL)
+    else if ((*root)->right == NULL)
     {
       tree *temp = (*root)->left;
       free(*root);
@@ -243,13 +243,13 @@ void delete_tree(tree **root, int data)
     }
     else
     {
-      tree *temp = (*root)->rigth;
+      tree *temp = (*root)->right;
       while (temp->left != NULL)
       {
         temp = temp->left;
       }
       (*root)->data = temp->data;
-      delete_tree(&((*root)->rigth), temp->data);
+      delete_tree(&((*root)->right), temp->data);
     }
   }
 }
@@ -259,10 +259,10 @@ int count_leaf(tree *root)
 {
   if (root == NULL)
     return 0;
-  else if (root->left == NULL && root->rigth == NULL)
+  else if (root->left == NULL && root->right == NULL)
     return 1;
   else
-    return count_leaf(root->left) + count_leaf(root->rigth);
+    return count_leaf(root->left) + count_leaf(root->right);
 }
 
 //? Función para contar los niveles de un arbol
@@ -274,7 +274,7 @@ int count_level(tree *root)
   {
     int left = count_level(root->left);
 
-    int rigth = count_level(root->rigth);
+    int rigth = count_level(root->right);
 
     if (left > rigth)
       return left + 1;
@@ -303,8 +303,8 @@ void printBreadth(tree *root)
     aux = findNode(root, value);
     if (aux->left != NULL)
       insertList(&head, &tail, aux->left->data);
-    if (aux->rigth != NULL)
-      insertList(&head, &tail, aux->rigth->data);
+    if (aux->right != NULL)
+      insertList(&head, &tail, aux->right->data);
   }
 }
 
@@ -336,7 +336,7 @@ tree *copyTree(tree *root)
   tree *copyRoot = (tree *)malloc(sizeof(tree));
   copyRoot->data = root->data;
   copyRoot->left = copyTree(root->left);
-  copyRoot->rigth = copyTree(root->rigth);
+  copyRoot->right = copyTree(root->right);
 
   return copyRoot;
 }
@@ -353,7 +353,7 @@ tree *findNode(tree *root, int data)
   if (data < root->data)
     return findNode(root->left, data);
 
-  return findNode(root->rigth, data);
+  return findNode(root->right, data);
 }
 
 //? Función para insertar en una lista tipo cola
