@@ -154,24 +154,24 @@ void insertRBT(RBT **root, int data)
         y->right = z;
 
     fixInsert(root, z);
-    printf("\nEl número ha sido insertado\n\n");
 }
 
 // Busca un nodo en el árbol rojo-negro
 int searchRBT(RBT *root, int data)
 {
-    RBT *current = root;
-    while (current != NULL)
-    {
-        if (data == current->data)
-        {
-            printf("\nEl número %d existe en el árbol\n", data);
-            return current->data;
-        }
-        current = (data < current->data) ? current->left : current->right;
-    }
-    printf("\nEl número %d NO existe en el árbol\n", data);
-    return -1;
+  int steps = 0;
+  while (root != NULL)
+  {
+    if (root->data == data)
+      return steps;
+    else if (data < root->data)
+      root = root->left;
+    else
+      root = root->right;
+
+    steps++;
+  }
+  return -1;
 }
 
 // Menú para interactuar con el árbol rojo-negro

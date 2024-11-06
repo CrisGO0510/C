@@ -12,7 +12,7 @@ void insert_left(tree *, int);
 void insert_right(tree *, int);
 void impTree(tree *);
 void print_inorder(tree *);
-void print_piramid(tree *, int);
+void printPiramid(tree *, int);
 void newNode(tree **, int, int);
 
 int main()
@@ -51,7 +51,7 @@ int main()
       if (raiz == NULL)
         printf("El arbol esta vacio, no se puede imprimir nada\n");
       else
-        print_piramid(raiz, 0);
+        printPiramid(raiz, 0);
     }
 
     printf("\nPresiona enter para continuar...");
@@ -108,19 +108,19 @@ void print_inorder(tree *root)
   print_inorder(root->right);
 }
 
-void print_piramid(tree *root, int level)
+void printPiramid(tree *root, int level)
 {
   if (root == NULL)
     return;
 
-  print_piramid(root->right, level + 1);
+  printPiramid(root->right, level + 1);
 
   for (int i = 0; i < level; i++)
     printf("xxx");
 
   printf("%d\n", root->info);
 
-  print_piramid(root->left, level + 1);
+  printPiramid(root->left, level + 1);
 }
 
 void newNode(tree **root, int data, int level)

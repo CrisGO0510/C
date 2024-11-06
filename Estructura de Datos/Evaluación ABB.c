@@ -25,8 +25,8 @@ typedef struct list
 void insert(tree **, int);
 void printIn(tree *);
 void printPiramid(tree *, int);
-int count_nodes(tree *);
-void delete_tree(tree **, int);
+int countNodes(tree *);
+void deleteTree(tree **, int);
 int min_value(tree *);
 int count_leaf(tree *);
 int count_level(tree *);
@@ -93,14 +93,14 @@ int main()
       printPiramid(root, 0);
     }
     else if (option == 3)
-      printf("Cantidad de nodos: %d\n", count_nodes(root));
+      printf("Cantidad de nodos: %d\n", countNodes(root));
     else if (option == 4)
       printf("Valor minimo: %d\n", min_value(root));
     else if (option == 5)
     {
       printf("Ingrese el valor a eliminar: ");
       scanf("%d", &value);
-      delete_tree(&root, value);
+      deleteTree(&root, value);
     }
     else if (option == 6)
     {
@@ -185,12 +185,12 @@ void printIn(tree *aux)
 }
 
 //? Función para contar nodos
-int count_nodes(tree *root)
+int countNodes(tree *root)
 {
   if (root == NULL)
     return 0;
   else
-    return 1 + count_nodes(root->left) + count_nodes(root->right);
+    return 1 + countNodes(root->left) + countNodes(root->right);
 }
 
 //? Función para encontrar el valor mínimo
@@ -218,15 +218,15 @@ int max_value(tree *root)
 }
 
 //? Función para eliminar un nodo
-void delete_tree(tree **root, int data)
+void deleteTree(tree **root, int data)
 {
   if (*root == NULL)
     return;
 
   if (data < (*root)->data)
-    delete_tree(&((*root)->left), data);
+    deleteTree(&((*root)->left), data);
   else if (data > (*root)->data)
-    delete_tree(&((*root)->right), data);
+    deleteTree(&((*root)->right), data);
   else
   {
     if ((*root)->left == NULL)
@@ -249,7 +249,7 @@ void delete_tree(tree **root, int data)
         temp = temp->left;
       }
       (*root)->data = temp->data;
-      delete_tree(&((*root)->right), temp->data);
+      deleteTree(&((*root)->right), temp->data);
     }
   }
 }
@@ -321,7 +321,7 @@ void printDescendent(tree *root)
   {
     value = min_value(aux);
     printf("%d ", value);
-    delete_tree(&aux, value);
+    deleteTree(&aux, value);
   }
 }
 

@@ -1,30 +1,32 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct tree
+typedef struct ABB
 {
   int data;
-  struct tree *left;
-  struct tree *right;
-} tree;
+  struct ABB *left;
+  struct ABB *right;
+} ABB;
 
-void insert(tree **, int);
-void imprimirPre(tree *);
-void imprimirIn(tree *);
-void imprimirPost(tree *);
-void print_piramid(tree *, int);
-int count_nodes(tree *);
-void delete_tree(tree **, int);
-void delete_node(tree **, int);
-int search(tree *, int);
-int tree_height(tree *);
-int find_parent(tree *, int);
-int tree_weight(tree *);
-int count_leaves(tree *);
+void insertABB(ABB **, int);
+void imprimirPre(ABB *);
+void imprimirIn(ABB *);
+void imprimirPost(ABB *);
+void printPiramid(ABB *, int);
+int countNodes(ABB *);
+void deleteTree(ABB **, int);
+void deleteNode(ABB **, int);
+int searchABB(ABB *, int);
+int treeHeight(ABB *);
+int findParent(ABB *, int);
+int treeWeight(ABB *);
+int countLeaves(ABB *);
+void printGivenLevel(ABB *, int);
+int findMax(ABB *);
 
 int menuABB()
 {
-  tree *root = NULL;
+  ABB *root = NULL;
 
   int option = 0;
   int value;
@@ -36,7 +38,7 @@ int menuABB()
     printf("1. Insertar un valor\n");
     printf("2. Eliminar un valor\n");
     printf("3. Buscar un valor\n");
-    printf("4. Ver el Árbol\n");
+    printf("4. Ver el Arbol\n");
     printf("5. Recorrer el árbol en En-orden\n");
     printf("6. Recorrer el árbol en Pre-orden\n");
     printf("7. Recorrer el árbol en Post-orden\n");
@@ -53,19 +55,19 @@ int menuABB()
     {
       printf("Ingrese el valor a insertar: ");
       scanf("%d", &value);
-      insert(&root, value);
+      insertABB(&root, value);
     }
     else if (option == 2)
     {
       printf("Ingrese el valor a eliminar: ");
       scanf("%d", &value);
-      delete_node(&root, value);
+      deleteNode(&root, value);
     }
     else if (option == 3)
     {
       printf("Ingrese el valor a buscar: ");
       scanf("%d", &value);
-      if (search(root, value))
+      if (searchABB(root, value))
         printf("Valor encontrado en el arbol.\n");
       else
         printf("Valor no encontrado en el arbol.\n");
@@ -73,7 +75,7 @@ int menuABB()
     else if (option == 4)
     {
       printf("Impresion del árbol:\n");
-      print_piramid(root, 0);
+      printPiramid(root, 0);
       printf("\n");
     }
     else if (option == 5)
@@ -96,21 +98,21 @@ int menuABB()
     }
     else if (option == 8)
     {
-      printf("Peso del árbol: %d\n", tree_weight(root));
+      printf("Peso del árbol: %d\n", treeWeight(root));
     }
     else if (option == 9)
     {
-      printf("Altura del árbol: %d\n", tree_height(root));
+      printf("Altura del árbol: %d\n", treeHeight(root));
     }
     else if (option == 10)
     {
-      printf("Cantidad de hojas: %d\n", count_leaves(root));
+      printf("Cantidad de hojas: %d\n", countLeaves(root));
     }
     else if (option == 11)
     {
       printf("Ingrese el valor del nodo para encontrar su padre: ");
       scanf("%d", &value);
-      int parent = find_parent(root, value);
+      int parent = findParent(root, value);
       if (parent == -1)
         printf("El nodo no tiene padre o no existe en el árbol.\n");
       else
@@ -133,9 +135,24 @@ int menuABB()
   return 0;
 }
 
-void insert(tree **root, int x)
+// Función para visualizar el árbol
+void printPiramid(ABB *tree, int n)
 {
-  tree *newTree = (tree *)malloc(sizeof(tree));
+  if (tree == NULL)
+    return;
+  printPiramid(tree->right, n + 1);
+
+  for (int i = 0; i < n; i++)
+    printf("   ");
+
+  printf("%d\n", tree->data);
+
+  printPiramid(tree->left, n + 1);
+}
+
+void insertABB(ABB **root, int x)
+{
+  ABB *newTree = (ABB *)malloc(sizeof(ABB));
   newTree->data = x;
   newTree->left = NULL;
   newTree->right = NULL;
@@ -143,7 +160,7 @@ void insert(tree **root, int x)
     *root = newTree;
   else
   {
-    tree *currency, *aux;
+    ABB *currency, *aux;
     currency = NULL;
     aux = *root;
     while (aux != NULL)
@@ -167,70 +184,59 @@ void insert(tree **root, int x)
   }
 }
 
-void delete_node(tree **root, int data)
+void deleteNode(ABB **root, int data)
 {
   if (*root == NULL)
     return;
 
   if (data < (*root)->data)
-    delete_node(&(*root)->left, data);
+    deleteNode(&(*root)->left, data);
   else if (data > (*root)->data)
-    delete_node(&(*root)->right, data);
+    deleteNode(&(*root)->right, data);
   else
   {
     if ((*root)->left == NULL)
     {
-      tree *temp = (*root)->right;
+      ABB *temp = (*root)->right;
       free(*root);
       *root = temp;
     }
     else if ((*root)->right == NULL)
     {
-      tree *temp = (*root)->left;
+      ABB *temp = (*root)->left;
       free(*root);
       *root = temp;
     }
     else
     {
-      tree *temp = (*root)->right;
+      ABB *temp = (*root)->right;
       while (temp && temp->left != NULL)
         temp = temp->left;
 
       (*root)->data = temp->data;
-      delete_node(&(*root)->right, temp->data);
+      deleteNode(&(*root)->right, temp->data);
     }
   }
 }
 
-int search(tree *root, int data)
+int searchABB(ABB *root, int data)
 {
-  if (root == NULL)
-    return 0;
+  int steps = 0;
+  while (root != NULL)
+  {
+    if (root->data == data)
+      return steps;
+    else if (data < root->data)
+      root = root->left;
+    else
+      root = root->right;
 
-  if (root->data == data)
-    return 1;
-  else if (data < root->data)
-    return search(root->left, data);
-  else
-    return search(root->right, data);
+    steps++;
+  }
+  return -1;
 }
 
-void print_piramid(tree *root, int level)
-{
-  if (root == NULL)
-    return;
-
-  print_piramid(root->right, level + 1);
-
-  for (int i = 0; i < level; i++)
-    printf("xxx");
-
-  printf("%d\n", root->data);
-
-  print_piramid(root->left, level + 1);
-}
-
-void imprimirPre(tree *aux)
+void imprimirPre(ABB *aux)
 {
   if (aux != NULL)
   {
@@ -240,7 +246,7 @@ void imprimirPre(tree *aux)
   }
 }
 
-void imprimirIn(tree *aux)
+void imprimirIn(ABB *aux)
 {
   if (aux != NULL)
   {
@@ -250,7 +256,7 @@ void imprimirIn(tree *aux)
   }
 }
 
-void imprimirPost(tree *aux)
+void imprimirPost(ABB *aux)
 {
   if (aux != NULL)
   {
@@ -260,21 +266,21 @@ void imprimirPost(tree *aux)
   }
 }
 
-int tree_weight(tree *root)
+int treeWeight(ABB *root)
 {
   if (root == NULL)
     return 0;
-  return 1 + tree_weight(root->left) + tree_weight(root->right);
+  return 1 + treeWeight(root->left) + treeWeight(root->right);
 }
 
-int tree_height(tree *root)
+int treeHeight(ABB *root)
 {
   if (root == NULL)
     return 0;
   else
   {
-    int left_height = tree_height(root->left);
-    int right_height = tree_height(root->right);
+    int left_height = treeHeight(root->left);
+    int right_height = treeHeight(root->right);
 
     if (left_height > right_height)
       return (left_height + 1);
@@ -283,16 +289,16 @@ int tree_height(tree *root)
   }
 }
 
-int count_leaves(tree *root)
+int countLeaves(ABB *root)
 {
   if (root == NULL)
     return 0;
   if (root->left == NULL && root->right == NULL)
     return 1;
-  return count_leaves(root->left) + count_leaves(root->right);
+  return countLeaves(root->left) + countLeaves(root->right);
 }
 
-void delete_tree(tree **root, int data)
+void deleteTree(ABB **root, int data)
 {
   if (*root == NULL)
     return;
@@ -307,7 +313,7 @@ void delete_tree(tree **root, int data)
 
     if ((*root)->left != NULL && (*root)->right != NULL)
     {
-      tree *aux = (*root)->right;
+      ABB *aux = (*root)->right;
 
       while (aux->left != NULL)
       {
@@ -332,15 +338,15 @@ void delete_tree(tree **root, int data)
   }
   else if ((*root)->data > data)
   {
-    delete_tree(&(*root)->left, data);
+    deleteTree(&(*root)->left, data);
   }
   else if ((*root)->data < data)
   {
-    delete_tree(&(*root)->right, data);
+    deleteTree(&(*root)->right, data);
   }
 }
 
-int find_parent(tree *root, int data)
+int findParent(ABB *root, int data)
 {
   if (root == NULL || root->data == data)
     return -1;
@@ -350,7 +356,45 @@ int find_parent(tree *root, int data)
     return root->data;
 
   if (data < root->data)
-    return find_parent(root->left, data);
+    return findParent(root->left, data);
   else
-    return find_parent(root->right, data);
+    return findParent(root->right, data);
+}
+
+void print_level_order(ABB *root)
+{
+  if (root == NULL)
+    return;
+
+  int h = treeHeight(root);
+  for (int i = 0; i < h; i++)
+  {
+    printf("Nivel %d: ", i);
+    printGivenLevel(root, i);
+    printf("\n");
+  }
+}
+
+void printGivenLevel(ABB *root, int level)
+{
+  if (root == NULL)
+    return;
+  if (level == 0)
+    printf("%d ", root->data);
+  else if (level > 0)
+  {
+    printGivenLevel(root->left, level - 1);
+    printGivenLevel(root->right, level - 1);
+  }
+}
+
+int findMax(ABB *root)
+{
+  if (root == NULL)
+    return -1;
+
+  while (root->right != NULL)
+    root = root->right;
+
+  return root->data;
 }

@@ -279,23 +279,23 @@ void insertAVL(AVL **r, int data)
   }
 
   balance(nodoAVL, parent);
-  printf("\nEl numero ha sido insertado\n\n");
 }
 
 // Busca un nodo en el árbol y retorna el dato
-int searchAVL(AVL *nodoAVL, int data)
+int searchAVL(AVL *root, int data)
 {
-  AVL *currency = nodoAVL;
-  while (currency != NULL)
+  int steps = 0;
+  while (root != NULL)
   {
-    if (data == currency->data)
-    {
-      printf("\nEl numero %d existe en el arbol\n", data);
-      return currency->data;
-    }
-    currency = (data < currency->data) ? currency->left : currency->right;
+    if (root->data == data)
+      return steps;
+    else if (data < root->data)
+      root = root->left;
+    else
+      root = root->right;
+
+    steps++;
   }
-  printf("\nEl numero %d NO existe en el arbol\n", data);
   return -1;
 }
 

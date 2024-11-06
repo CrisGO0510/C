@@ -4,34 +4,29 @@
 #include "avl.h"
 #include "rbt.h"
 
-int main() {
-  int choice;
-  do {
-    printf("Menú Principal\n");
-    printf("1. ABB\n");
-    printf("2. Arboles AVL\n");
-    printf("3. Arboles Rojo - Negros\n");
-    printf("4. Salir\n");
-    printf("Qué tipo de árbol Desea Implementar (1-4)? ");
-    scanf("%d", &choice);
+int main()
+{
+  RBT *root = NULL;
 
-    switch (choice) {
-      case 1:
-        menuABB();
-        break;
-      case 2:
-        menuAVL();
-        break;
-      case 3:
-        menuRBT();
-        break;
-      case 4:
-        printf("Saliendo...\n");
-        break;
-      default:
-        printf("Opción no válida. Intente de nuevo.\n");
-    }
-  } while (choice != 4);
+  insertRBT(&root, 10);
+  insertRBT(&root, 8);
+  insertRBT(&root, 15);
+  insertRBT(&root, 18);
+  insertRBT(&root, 14);
+  insertRBT(&root, 20);
+  insertRBT(&root, 3);
+  insertRBT(&root, 4);
+  insertRBT(&root, 2);
+  insertRBT(&root, 9);
+  insertRBT(&root, 20);
+  insertRBT(&root, 25);
+  insertRBT(&root, 7);
+  insertRBT(&root, 16);
+  insertRBT(&root, 29);
+  insertRBT(&root, 28);
+  insertRBT(&root, 26);
+
+  printf("Pasos realizados: %d\n", searchRBT(root, 26));
 
   return 0;
 }
