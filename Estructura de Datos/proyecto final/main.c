@@ -37,7 +37,7 @@ int main()
   // printVertices(graph->vertices);
   // printEdges(graph->edges);
 
-  VertexNode *a = BFS(graph, 9);
+  VertexNode *a = DFS(graph, 1);
   printVertices(a);
 
   // while (a != NULL)
