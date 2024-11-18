@@ -2,277 +2,335 @@
 #include "stdlib.h"
 #include "string.h"
 
-typedef struct NodoV
+typedef struct VertexNode
 {
-   int dato;
-   struct NodoV *sig;
-   int marcado;
-} *ListaVertice;
+   int value;
+   struct VertexNode *next;
+   int marked;
+} VertexNode;
 
-typedef struct NodoA
+typedef struct EdgeNode
 {
-   int origen;
-   int destino;
-   int costo;
-   struct NodoA *sig;
-} *ListaArco;
+   int from;
+   int to;
+   int cost;
+   struct EdgeNode *next;
+} EdgeNode;
 
-typedef struct nodoGrafo
+typedef struct nodeGraph
 {
-   ListaVertice v;
-   ListaArco a;
-} Grafo;
+   VertexNode *vertices;
+   EdgeNode *edges;
+} nodeGraph;
 
-Grafo crearGrafo()
-{
-   Grafo g;
-   g.v = NULL;
-   g.a = NULL;
-   return g;
-}
+// Graph crearGraph()
+// {
+//    Graph g;
+//    g.v = NULL;
+//    g.a = NULL;
+//    return g;
+// }
 
 // Función para adicionar un vertice a la lista de vértices
-Grafo insertarVertice(Grafo g, int x)
+void insertVertex(VertexNode **vertices, int value)
 {
-   ListaVertice nuevo = (ListaVertice)malloc(sizeof(struct NodoV));
-   nuevo->sig = g.v;
-   nuevo->dato = x;
-   nuevo->marcado = 0; // el vertice no esta marcado
-   g.v = nuevo;
-   return g;
+   VertexNode *newNode = (VertexNode *)malloc(sizeof(VertexNode));
+   newNode->value = value;
+   newNode->marked = 0;
+   newNode->next = NULL;
+
+   if (*vertices == NULL)
+   {
+      *vertices = newNode;
+      return;
+   }
+
+   VertexNode *current = *vertices;
+
+   while (current->next != NULL)
+   {
+      current = current->next;
+   }
+   current->next = newNode;
 }
 
-void imprimirListaV(Grafo g)
+void printVertices(VertexNode *rootVertexNode)
 {
-   ListaVertice k = g.v;
-   while (k != NULL)
+   if (rootVertexNode == NULL)
    {
-      printf(" \n%d     %d", k->dato, k->marcado);
-      k = k->sig;
+      printf("No hay vértices\n");
+      return;
    }
+
+   // while (rootVertexNode != NULL)
+   // {
+   //    printf("Vertices: %d     marcado: %s\n", rootVertexNode->value, rootVertexNode->marked ? "Si" : "No");
+   //    rootVertexNode = rootVertexNode->next;
+   // }
+
+   while (rootVertexNode->next != NULL)
+   {
+      printf("%d -> ", rootVertexNode->value);
+      rootVertexNode = rootVertexNode->next;
+   }
+
+   printf("%d\n", rootVertexNode->value);
+   
 }
 
 // Función para adicionar un arco a la lista de arcos
-Grafo insertarArco(Grafo g, int x, int y, int z)
+void insertEdge(EdgeNode **edges, int fromVertice, int toVertice, int cost)
 {
-   ListaArco nuevo = (ListaArco)malloc(sizeof(struct NodoA));
-   nuevo->sig = g.a;
-   nuevo->origen = x;
-   nuevo->destino = y;
-   nuevo->costo = z;
-   g.a = nuevo;
-   return g;
+   EdgeNode *newEdge = (EdgeNode *)malloc(sizeof(EdgeNode));
+   newEdge->from = fromVertice;
+   newEdge->to = toVertice;
+   newEdge->cost = cost;
+   newEdge->next = NULL;
+
+   if (*edges == NULL)
+   {
+      *edges = newEdge;
+   }
+   else
+   {
+      EdgeNode *current = *edges;
+      while (current->next != NULL)
+      {
+         current = current->next;
+      }
+      current->next = newEdge;
+   }
+
+   // Add the reverse edge to make the graph undirected
+   // agregale la funcionalidad de que el grafo no es direccional, es decir si ingreso que va de 1 a 2 tmb lo agregue de 2 a 1
+   EdgeNode *reverseEdge = (EdgeNode *)malloc(sizeof(EdgeNode));
+   reverseEdge->from = toVertice;
+   reverseEdge->to = fromVertice;
+   reverseEdge->cost = cost;
+   reverseEdge->next = NULL;
+
+   if (*edges == NULL)
+   {
+      *edges = reverseEdge;
+   }
+   else
+   {
+      EdgeNode *current = *edges;
+      while (current->next != NULL)
+      {
+         current = current->next;
+      }
+      current->next = reverseEdge;
+   }
 }
 
 // imprime la lista de arcos
-void imprimirListaA(Grafo g)
+void printEdges(EdgeNode *rootEdgeNode)
 {
-   ListaArco k = g.a;
-   while (k != NULL)
+   if (rootEdgeNode == NULL)
    {
-      printf(" \n%d    %d     %d", k->origen, k->destino, k->costo);
-      k = k->sig;
+      printf("No hay arcos\n");
+      return;
+   }
+
+   while (rootEdgeNode != NULL)
+   {
+      printf("Arco: %d -> %d, costo: %d\n", rootEdgeNode->from, rootEdgeNode->to, rootEdgeNode->cost);
+      rootEdgeNode = rootEdgeNode->next;
    }
 }
 
-ListaVertice verticesGrafo(Grafo g)
-{
-   return g.v;
-}
+// // elimina un vertice del parent
+// Graph eliminarVertice(Graph g, int x)
+// {
+//    ListaVertice k = g.v, p;
+//    if (g.v != NULL)
+//    {
+//       if (g.v->value == x)
+//       {
+//          g.v = g.v->next;
+//          free(k);
+//       }
+//       else
+//       {
+//          while ((k->next != NULL) && (k->next->value != x))
+//             k = k->next;
+//          if (k->next != NULL)
+//          {
+//             p = k->next;
+//             k->next = p->next;
+//             free(p);
+//          }
+//       }
+//    }
+//    return g;
+// }
 
-ListaArco arcosGrafo(Grafo g)
-{
-   return g.a;
-}
+// // Elimina un arco que parta del from x al to y
+// Graph eliminarArco(Graph g, int x, int y)
+// {
+//    ListaArco k = g.a, p;
 
-Grafo cambiarListaV(Grafo g, ListaVertice k)
-{
-   g.v = k;
-   return g;
-}
+//    if (g.a != NULL)
+//    {
+//       if ((g.a->from == x) && (g.a->to == y))
+//       {
+//          g.a = g.a->next;
+//          free(k);
+//       }
+//       else
+//       {
+//          while ((k->next != NULL) && !((k->next->from == x) && (k->next->to == y)))
+//             k = k->next;
+//          if (k->next != NULL)
+//          {
+//             p = k->next;
+//             printf("\n el arco a borrar es %d   %d", p->from, p->to);
+//             k->next = p->next;
+//             free(p);
+//          }
+//       }
+//    }
+//    return g;
+// }
 
-Grafo cambiarListaA(Grafo g, ListaArco k)
-{
-   g.a = k;
-   return g;
-}
+// // retorna el cost del arco desde x hasta y
+// int costArco(Graph g, int x, int y)
+// {
+//    ListaArco k = g.a;
 
-int vacioGrafo(Grafo g)
-// Devuelve verdadero si el grafo es vacio
-{
-   if (g.v == NULL)
-      return 1;
-   else
-      return 0;
-}
+//    while (k != NULL)
+//    {
+//       if ((k->from == x) && (k->to == y))
+//          return k->cost;
+//       k = k->next;
+//    }
+//    return -1; // no encontró el arco
+// }
 
-// elimina un vertice del grafo
-Grafo eliminarVertice(Grafo g, int x)
-{
-   ListaVertice k = g.v, p;
+// // retorna el número de vértices asociados al parent
+// int ordenGraph(Graph g)
+// {
+//    int orden = 0;
+//    ListaVertice k = g.v;
 
-   if (g.v != NULL)
-   {
-      if (g.v->dato == x)
-      {
-         g.v = g.v->sig;
-         free(k);
-      }
-      else
-      {
-         while ((k->sig != NULL) && (k->sig->dato != x))
-            k = k->sig;
-         if (k->sig != NULL)
-         {
-            p = k->sig;
-            k->sig = p->sig;
-            free(p);
-         }
-      }
-   }
-   return g;
-}
+//    while (k != NULL)
+//    {
+//       orden++;
+//       k = k->next;
+//    }
+//    return orden;
+// }
 
-// Elimina un arco que parta del origen x al destino y
-Grafo eliminarArco(Grafo g, int x, int y)
-{
-   ListaArco k = g.a, p;
+// // marca un vertice de parent
+// Graph marcarVertice(Graph g, int x)
+// {
+//    ListaVertice k = g.v;
 
-   if (g.a != NULL)
-   {
-      if ((g.a->origen == x) && (g.a->destino == y))
-      {
-         g.a = g.a->sig;
-         free(k);
-      }
-      else
-      {
-         while ((k->sig != NULL) && !((k->sig->origen == x) && (k->sig->destino == y)))
-            k = k->sig;
-         if (k->sig != NULL)
-         {
-            p = k->sig;
-            printf("\n el arco a borrar es %d   %d", p->origen, p->destino);
-            k->sig = p->sig;
-            free(p);
-         }
-      }
-   }
-   return g;
-}
-
-// retorna el costo del arco desde x hasta y
-int costoArco(Grafo g, int x, int y)
-{
-   ListaArco k = g.a;
-
-   while (k != NULL)
-   {
-      if ((k->origen == x) && (k->destino == y))
-         return k->costo;
-      k = k->sig;
-   }
-   return -1; // no encontró el arco
-}
-
-// retorna el número de vértices asociados al grafo
-int ordenGrafo(Grafo g)
-{
-   int orden = 0;
-   ListaVertice k = g.v;
-
-   while (k != NULL)
-   {
-      orden++;
-      k = k->sig;
-   }
-   return orden;
-}
-
-// marca un vertice de grafo
-Grafo marcarVertice(Grafo g, int x)
-{
-   ListaVertice k = g.v;
-
-   while (k != NULL)
-   {
-      if (k->dato == x)
-      {
-         k->marcado = 1;
-         k = NULL;
-      }
-      else
-         k = k->sig;
-   }
-   return g;
-}
+//    while (k != NULL)
+//    {
+//       if (k->value == x)
+//       {
+//          k->marked = 1;
+//          k = NULL;
+//       }
+//       else
+//          k = k->next;
+//    }
+//    return g;
+// }
 
 // desmarca un vertice de grafo
-Grafo desmarcarVertice(Grafo g, int x)
+void markVertex(nodeGraph **graphRoot, int nodeValue, int markValue)
 {
-   ListaVertice k = g.v;
-   while (k != NULL)
+   VertexNode *current = (*graphRoot)->vertices;
+   while (current != NULL)
    {
-      if (k->dato == x)
+      if (current->value == nodeValue)
       {
-         k->marcado = 0;
-         k = NULL;
+         current->marked = markValue;
+         current = NULL;
       }
       else
-         k = k->sig;
+         current = current->next;
    }
-   return g;
 }
 
 // desmarca todos los vertices del grafo
-Grafo desmarcarGrafo(Grafo g)
+void markAllVertices(VertexNode **vertices, int value)
 {
-   ListaVertice k = g.v;
-
-   while (k != NULL)
+   VertexNode *current = *vertices;
+   while (current != NULL)
    {
-      k->marcado = 0;
-      k = k->sig;
+      current->marked = value;
+      current = current->next;
    }
-   return g;
 }
 
-// Indica si un vértice está marcado
-int marcadoVertice(Grafo g, int x)
+// // Indica si un vértice está marked
+// int markedVertice(Graph g, int x)
+// {
+//    ListaVertice k = g.v;
+//    while (k != NULL)
+//    {
+//       if (k->value == x)
+//       {
+//          if (k->marked == 0)
+//             return 0;
+//          else
+//             return 1;
+//       }
+//       else
+//          k = k->next;
+//    }
+//    return 0;
+// }
+
+VertexNode *getChildVertices(nodeGraph *graphRoot, int node)
 {
-   ListaVertice k = g.v;
-   while (k != NULL)
+   if (graphRoot == NULL || graphRoot->vertices == NULL)
+      return NULL;
+
+   EdgeNode *initialNodeEdge = graphRoot->edges;
+   VertexNode *childVertices = NULL;
+
+   while (initialNodeEdge != NULL)
    {
-      if (k->dato == x)
+      // Si el arco parte del nodo, insertamos el vertice destino
+      if (initialNodeEdge->from == node)
       {
-         if (k->marcado == 0)
-            return 0;
-         else
-            return 1;
-      }
-      else
-         k = k->sig;
-   }
-   return 0;
-}
+         VertexNode *originalVertex = graphRoot->vertices;
+         while (originalVertex != NULL && originalVertex->value != initialNodeEdge->to)
+         {
+            originalVertex = originalVertex->next;
+         }
 
-ListaVertice sucesores(Grafo g, int x)
-{
-   ListaArco k = g.a;
-   ListaVertice ver = NULL, nuevo;
+         // Insertamos
+         if (originalVertex != NULL)
+         {
+            VertexNode *newChild = (VertexNode *)malloc(sizeof(VertexNode));
+            newChild->value = originalVertex->value;
+            newChild->marked = originalVertex->marked;
+            newChild->next = NULL;
 
-   while (k != NULL)
-   {
-      if (k->origen == x)
-      { // se agrega a la lista el destino del arco como sucesor de x
-         nuevo = (ListaVertice)malloc(sizeof(struct NodoV));
-         nuevo->sig = ver;
-         nuevo->dato = k->destino;
-         nuevo->marcado = 0; // el vertice no esta marcado
-         ver = nuevo;
-         printf("\nsucesor %d  ", nuevo->dato);
+            if (childVertices == NULL)
+            {
+               childVertices = newChild;
+            }
+            else
+            {
+               VertexNode *current = childVertices;
+               while (current->next != NULL)
+               {
+                  current = current->next;
+               }
+               current->next = newChild;
+            }
+         }
       }
-      k = k->sig;
+
+      initialNodeEdge = initialNodeEdge->next;
    }
-   return ver;
+
+   return childVertices;
 }
