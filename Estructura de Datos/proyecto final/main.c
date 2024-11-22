@@ -16,18 +16,26 @@ int main()
   insertVertex(&(graph->vertices), 6);
   insertVertex(&(graph->vertices), 7);
   insertVertex(&(graph->vertices), 8);
-  insertVertex(&(graph->vertices), 9);
 
   // Agregar arcos al grafo
-  insertEdge(&(graph->edges), 1, 2, 0);
-  insertEdge(&(graph->edges), 1, 3, 0);
-  insertEdge(&(graph->edges), 2, 6, 0);
-  insertEdge(&(graph->edges), 2, 7, 0);
-  insertEdge(&(graph->edges), 3, 7, 0);
-  insertEdge(&(graph->edges), 7, 8, 0);
+  inserDoubleEdge(&(graph->edges), 1, 2, 5);
+  inserDoubleEdge(&(graph->edges), 1, 3, 2);
+  inserDoubleEdge(&(graph->edges), 1, 4, 4);
 
-  insertEdge(&(graph->edges), 4, 5, 0);
-  insertEdge(&(graph->edges), 4, 9, 0);
+  inserDoubleEdge(&(graph->edges), 2, 5, 2);
+
+  inserDoubleEdge(&(graph->edges), 3, 2, 1);
+  inserDoubleEdge(&(graph->edges), 3, 4, 1);
+
+  inserDoubleEdge(&(graph->edges), 4, 7, 5);
+
+  inserDoubleEdge(&(graph->edges), 5, 6, 1);
+  inserDoubleEdge(&(graph->edges), 5, 8, 3);
+
+  inserDoubleEdge(&(graph->edges), 6, 8, 2);
+  inserDoubleEdge(&(graph->edges), 6, 7, 1);
+
+  inserDoubleEdge(&(graph->edges), 7, 8, 1);
 
 
   // // Recorrer la lista de vértices
@@ -37,14 +45,10 @@ int main()
   // printVertices(graph->vertices);
   // printEdges(graph->edges);
 
-  VertexNode *a = DFS(graph, 1);
-  printVertices(a);
+  printf("INICIO\n\n");
 
-  // while (a != NULL)
-  // {
-  //   printf("%d - ", a->value);
-  //   a = a->next;
-  // }
+  VertexNode *a = BFS(graph, 1);
+  printVertices(a);
 
   printf("FIN\n");
 

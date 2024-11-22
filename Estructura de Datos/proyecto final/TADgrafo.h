@@ -23,14 +23,6 @@ typedef struct nodeGraph
    EdgeNode *edges;
 } nodeGraph;
 
-// Graph crearGraph()
-// {
-//    Graph g;
-//    g.v = NULL;
-//    g.a = NULL;
-//    return g;
-// }
-
 // Función para adicionar un vertice a la lista de vértices
 void insertVertex(VertexNode **vertices, int value)
 {
@@ -79,7 +71,7 @@ void printVertices(VertexNode *rootVertexNode)
 }
 
 // Función para adicionar un arco a la lista de arcos
-void insertEdge(EdgeNode **edges, int fromVertice, int toVertice, int cost)
+void inserDoubleEdge(EdgeNode **edges, int fromVertice, int toVertice, int cost)
 {
    EdgeNode *newEdge = (EdgeNode *)malloc(sizeof(EdgeNode));
    newEdge->from = fromVertice;
@@ -101,8 +93,6 @@ void insertEdge(EdgeNode **edges, int fromVertice, int toVertice, int cost)
       current->next = newEdge;
    }
 
-   // Add the reverse edge to make the graph undirected
-   // agregale la funcionalidad de que el grafo no es direccional, es decir si ingreso que va de 1 a 2 tmb lo agregue de 2 a 1
    EdgeNode *reverseEdge = (EdgeNode *)malloc(sizeof(EdgeNode));
    reverseEdge->from = toVertice;
    reverseEdge->to = fromVertice;
@@ -123,6 +113,17 @@ void insertEdge(EdgeNode **edges, int fromVertice, int toVertice, int cost)
       current->next = reverseEdge;
    }
 }
+void insertEdge(EdgeNode **edges, int fromVertice, int toVertice, int cost)
+{
+   EdgeNode *newEdge = (EdgeNode *)malloc(sizeof(EdgeNode));
+   newEdge->from = fromVertice;
+   newEdge->to = toVertice;
+   newEdge->cost = cost;
+   newEdge->next = *edges;
+   *edges = newEdge;
+}
+
+
 
 // imprime la lista de arcos
 void printEdges(EdgeNode *rootEdgeNode)
